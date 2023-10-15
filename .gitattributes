@@ -1,0 +1,19 @@
+# Linux start script should use lf
+/gradlew        text eol=lf
+
+# These are Windows script files and should use crlf
+*.bat           text eol=crlf
+
+# These files are binary and should be left untouched
+# (binary is a macro for -text -diff)
+*.class         binary
+*.dll           binary
+*.ear           binary
+*.jar           binary
+*.jks           binary
+*.png           binary
+*.so            binary
+*.war           binary
+
+# Custom
+src/functionalTest/resources/src/main/java/test/TestClassCrlf*.java  text eol=crlf
