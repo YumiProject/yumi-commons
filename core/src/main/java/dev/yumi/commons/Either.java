@@ -19,8 +19,8 @@ import java.util.function.Function;
 /**
  * Represents a value of two possible types. An {@code Either} is either a {@link Left} or a {@link Right}.
  *
- * @param <L> The type of the left value
- * @param <R> The type of the right value
+ * @param <L> the type of the left value
+ * @param <R> the type of the right value
  * @author LambdAurora
  * @version 1.0.0
  * @since 1.0.0
@@ -35,8 +35,8 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
 	 * }</pre>
 	 *
 	 * @param value the value
-	 * @param <L> The type of the left value
-	 * @param <R> The type of the right value
+	 * @param <L> the type of the left value
+	 * @param <R> the type of the right value
 	 * @return a new {@code Left} instance
 	 */
 	@Contract(pure = true)
@@ -53,8 +53,8 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
 	 * }</pre>
 	 *
 	 * @param value the value
-	 * @param <L> The type of the left value
-	 * @param <R> The type of the right value
+	 * @param <L> the type of the left value
+	 * @param <R> the type of the right value
 	 * @return a new {@code Right} instance
 	 */
 	@Contract(pure = true)
@@ -142,7 +142,7 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
 	 * otherwise returns itself.
 	 *
 	 * @param mapper the mapping function to apply to the value, if this either represents a left value
-	 * @param <NL> The type to map the left value to
+	 * @param <NL> the type to map the left value to
 	 * @return an {@code Either.Left} describing the result of applying the mapping function to the value
 	 * if this either represents a left value, or itself otherwise.
 	 */
@@ -154,7 +154,7 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
 	 * otherwise returns itself.
 	 *
 	 * @param mapper the mapping function to apply to the value, if this either represents a right value
-	 * @param <NR> The type to map the right value to
+	 * @param <NR> the type to map the right value to
 	 * @return an {@code Either.Right} describing the result of applying the mapping function to the value
 	 * if this either represents a right value, or itself otherwise.
 	 */
@@ -165,8 +165,8 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
 	 *
 	 * @param leftMapper the mapping function to apply to the value, if this either represents a left value
 	 * @param rightMapper the mapping function to apply to the value, if this either represents a right value
-	 * @param <NL> The type to map the left value to
-	 * @param <NR> The type to map the right value to
+	 * @param <NL> the type to map the left value to
+	 * @param <NR> the type to map the right value to
 	 * @return an {@code Either} describing the result of applying either of the mapping function to the value this holds
 	 */
 	<NL, NR> Either<NL, NR> map(@NotNull Function<? super L, ? extends NL> leftMapper, @NotNull Function<? super R, ? extends NR> rightMapper);
@@ -176,7 +176,7 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
 	 *
 	 * @param leftMapper the mapping function to apply to the value, if this either represents a left value
 	 * @param rightMapper the mapping function to apply to the value, if this either represents a right value
-	 * @param <U> The type to map either the left or right value to
+	 * @param <U> the type to map either the left or right value to
 	 * @return the mapped value given by either mapper functions
 	 */
 	<U> U fold(@NotNull Function<? super L, ? extends U> leftMapper, @NotNull Function<? super R, ? extends U> rightMapper);
@@ -195,8 +195,8 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
 	/**
 	 * Represents the left value of an {@link Either}.
 	 *
-	 * @param <L> The type of the left value
-	 * @param <R> The type of the right value
+	 * @param <L> the type of the left value
+	 * @param <R> the type of the right value
 	 */
 	final class Left<L, R> implements Either<L, R> {
 		private final L value;
@@ -300,8 +300,8 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
 	/**
 	 * Represents the right value of an {@link Either}.
 	 *
-	 * @param <L> The type of the left value
-	 * @param <R> The type of the right value
+	 * @param <L> the type of the left value
+	 * @param <R> the type of the right value
 	 */
 	final class Right<L, R> implements Either<L, R> {
 		private final R value;
