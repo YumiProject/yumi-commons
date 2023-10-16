@@ -40,7 +40,7 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
 	 * @return a new {@code Left} instance
 	 */
 	@Contract(pure = true)
-	static <L, R> @NotNull Either<L, R> left(L value) {
+	static <L, R> @NotNull Left<L, R> left(L value) {
 		return new Left<>(value);
 	}
 
@@ -58,7 +58,7 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
 	 * @return a new {@code Right} instance
 	 */
 	@Contract(pure = true)
-	static <L, R> @NotNull Either<L, R> right(R value) {
+	static <L, R> @NotNull Right<L, R> right(R value) {
 		return new Right<>(value);
 	}
 

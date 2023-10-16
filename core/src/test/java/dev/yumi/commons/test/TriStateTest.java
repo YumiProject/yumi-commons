@@ -34,10 +34,14 @@ public class TriStateTest {
 	@Test
 	public void testFromString() {
 		for (var value : TRUE_STRINGS) {
-			assertSame(TriState.TRUE, TriState.fromString(value), "Expected TriState.TRUE for String value \"" + value + "\".");
+			assertSame(TriState.TRUE, TriState.fromString(value),
+					"Expected TriState.TRUE for String value \"" + value + "\"."
+			);
 		}
 		for (var value : FALSE_STRINGS) {
-			assertSame(TriState.FALSE, TriState.fromString(value), "Expected TriState.FALSE for String value \"" + value + "\".");
+			assertSame(TriState.FALSE, TriState.fromString(value),
+					"Expected TriState.FALSE for String value \"" + value + "\"."
+			);
 		}
 		assertSame(TriState.DEFAULT, TriState.fromString(null));
 		assertSame(TriState.DEFAULT, TriState.fromString("null"));
