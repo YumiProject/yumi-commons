@@ -7,7 +7,7 @@ group = "dev.yumi"
 version = "1.0.0-alpha.1-SNAPSHOT"
 val javaVersion = 17
 
-allprojects {
+project(":libraries").subprojects {
 	apply {
 		plugin("dev.yumi.gradle.licenser")
 		plugin("java-library")

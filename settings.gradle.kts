@@ -1,3 +1,3 @@
 rootProject.name = "yumi-commons"
 
-include("core", "collections", "event")
+include(":libraries:core", ":libraries:collections", ":libraries:event")
