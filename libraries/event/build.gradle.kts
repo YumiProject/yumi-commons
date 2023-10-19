@@ -1,5 +1,5 @@
 dependencies {
-	api(project(":collections"))
+	api(project(":libraries:collections"))
 
 	testImplementation(libs.slf4j.simple)
 }
