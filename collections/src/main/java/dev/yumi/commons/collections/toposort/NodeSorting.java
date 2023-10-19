@@ -25,6 +25,7 @@
 
 package dev.yumi.commons.collections.toposort;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
@@ -181,6 +182,7 @@ public final class NodeSorting {
 		return noCycle;
 	}
 
+	@ApiStatus.Internal
 	private static <I, N extends SortableNode<I, N>> void forwardVisit(N node, List<N> toposort) {
 		if (!node.visited) {
 			// Not yet visited.
@@ -194,12 +196,14 @@ public final class NodeSorting {
 		}
 	}
 
+	@ApiStatus.Internal
 	private static <I, N extends SortableNode<I, N>> void clearStatus(List<N> nodes) {
 		for (N node : nodes) {
 			node.visited = false;
 		}
 	}
 
+	@ApiStatus.Internal
 	private static <I, N extends SortableNode<I, N>> void backwardVisit(N node, List<N> sccNodes) {
 		if (!node.visited) {
 			node.visited = true;
@@ -211,6 +215,7 @@ public final class NodeSorting {
 		}
 	}
 
+	@ApiStatus.Internal
 	private static class NodeScc<I, N extends SortableNode<I, N>> {
 		final List<N> nodes;
 		final List<NodeScc<I, N>> nextSccs = new ArrayList<>();
