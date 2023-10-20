@@ -6,11 +6,12 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-module dev.yumi.commons.collections {
+module dev.yumi.commons.event {
 	requires dev.yumi.commons.core;
+	requires dev.yumi.commons.collections;
 	requires org.jetbrains.annotations;
-	requires org.slf4j;
+	requires org.objectweb.asm;
 
-	exports dev.yumi.commons.collections;
-	exports dev.yumi.commons.collections.toposort;
+	exports dev.yumi.commons.event;
+	exports dev.yumi.commons.event.invoker;
 }

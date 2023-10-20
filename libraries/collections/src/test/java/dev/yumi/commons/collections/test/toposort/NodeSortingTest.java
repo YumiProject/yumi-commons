@@ -25,6 +25,7 @@
 
 package dev.yumi.commons.collections.test.toposort;
 
+import dev.yumi.commons.collections.YumiCollections;
 import dev.yumi.commons.collections.toposort.NodeSorting;
 import dev.yumi.commons.collections.toposort.SortableNode;
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +33,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -50,7 +50,7 @@ public class NodeSortingTest {
 		TestNode.link(def, late);
 		TestNode.link(late, veryLate);
 
-		testAllPermutations(new ArrayList<>(), List.of(veryEarly, early, def, late, veryLate), testNodes -> {
+		YumiCollections.forAllPermutations(List.of(veryEarly, early, def, late, veryLate), testNodes -> {
 			var testList = new ArrayList<>(testNodes);
 
 			assertTrue(NodeSorting.sort(testList, "test nodes"));
@@ -108,7 +108,7 @@ public class NodeSortingTest {
 				a, b, d, e, f, y, z
 		));
 
-		testAllPermutations(new ArrayList<>(), list, testNodes -> {
+		YumiCollections.forAllPermutations(list, testNodes -> {
 			var testList = new ArrayList<>(testNodes);
 
 			NodeSorting.ENABLE_CYCLE_WARNING = false;
@@ -151,7 +151,7 @@ public class NodeSortingTest {
 				a, b, e, d, c
 		));
 
-		testAllPermutations(new ArrayList<>(), list, testNodes -> {
+		YumiCollections.forAllPermutations(list, testNodes -> {
 			var testList = new ArrayList<>(testNodes);
 
 			NodeSorting.ENABLE_CYCLE_WARNING = false;
@@ -165,21 +165,6 @@ public class NodeSortingTest {
 			assertSame(a, testList.get(3));
 			assertSame(b, testList.get(4));
 		});
-	}
-
-	@SuppressWarnings("SuspiciousListRemoveInLoop")
-	private static <T> void testAllPermutations(List<T> selected, List<T> toSelect, Consumer<List<T>> action) {
-		if (toSelect.isEmpty()) {
-			action.accept(selected);
-		} else {
-			for (int i = 0; i < toSelect.size(); ++i) {
-				selected.add(toSelect.get(i));
-				List<T> remaining = new ArrayList<>(toSelect);
-				remaining.remove(i);
-				testAllPermutations(selected, remaining, action);
-				selected.remove(selected.size() - 1);
-			}
-		}
 	}
 
 	private static class TestNode extends SortableNode<String, TestNode> {

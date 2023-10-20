@@ -6,11 +6,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-module dev.yumi.commons.collections {
-	requires dev.yumi.commons.core;
-	requires org.jetbrains.annotations;
-	requires org.slf4j;
+package dev.yumi.commons.event.test;
 
-	exports dev.yumi.commons.collections;
-	exports dev.yumi.commons.collections.toposort;
+import dev.yumi.commons.TriState;
+
+public interface TriStateCallback {
+	TriState call(String text);
 }

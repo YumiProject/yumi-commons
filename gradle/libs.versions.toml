@@ -3,6 +3,7 @@ jetbrains-annotations = "24.0.1"
 junit-jupiter = "5.10.0"
 junit-launcher = "1.10.0"
 slf4j = "2.0.9"
+asm = "9.6"
 
 [libraries]
 jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
@@ -10,3 +11,4 @@ junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "jun
 junit-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit.launcher" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
+asm = { module = "org.ow2.asm:asm", version.ref = "asm" }

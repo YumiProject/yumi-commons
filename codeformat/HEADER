@@ -8,7 +8,14 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 This file incorporates work covered by the following copyright and
 permission notice:
 
+#end
+#optional
   Copyright 2016, 2017, 2018, 2019 FabricMC
+#end
+#optional
+  Copyright 2021 The Quilt Project
+#end
+#optional
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
