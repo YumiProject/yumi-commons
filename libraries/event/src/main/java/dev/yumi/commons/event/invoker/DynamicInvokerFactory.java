@@ -15,9 +15,9 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
+import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,7 +39,7 @@ public abstract class DynamicInvokerFactory<T> extends InvokerFactory<T> {
 	private static final AtomicInteger CLASS_COUNTER = new AtomicInteger(0);
 	protected static final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
 	protected final MethodType listenerMethodType;
-	protected final Class<? extends T> implementationClass;
+	protected final MethodHandle constructor;
 
 	protected DynamicInvokerFactory(@NotNull Class<? super T> type) {
 		this(type, getFunctionalMethod(type));
@@ -61,33 +61,41 @@ public abstract class DynamicInvokerFactory<T> extends InvokerFactory<T> {
 			var implementationFullInnerClassRawName = DynamicInvokerFactory.class.getSimpleName() + implName;
 			var implementationClassRawName = DynamicInvokerFactory.class.getName().replace('.', '/') + implName;
 
-			this.implementationClass = this.buildClass(
+			this.constructor = this.buildClass(
 					listenerMethod.getName(),
 					this.type.getName().replace('.', '/'),
 					implementationInnerClassRawName,
 					implementationFullInnerClassRawName,
 					implementationClassRawName
 			);
-		} catch (IllegalAccessException e) {
+		} catch (IllegalAccessException | NoSuchMethodException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
+	/**
+	 * Checks whether the given invoker method is valid for this invoker factory.
+	 *
+	 * @param method the invoker method
+	 */
 	@Contract(pure = true)
 	protected abstract void checkMethod(@NotNull Method method);
 
-	@SuppressWarnings("unchecked")
-	private Class<? extends T> buildClass(
+	private MethodHandle buildClass(
 			String listenerMethodName,
 			String typeRawName,
 			String implementationInnerClassRawName,
 			String implementationFullInnerClassRawName,
 			String implementationClassRawName
-	) throws IllegalAccessException {
+	) throws IllegalAccessException, NoSuchMethodException {
 		var cw = new ClassWriter(ClassWriter.COMPUTE_MAXS + ClassWriter.COMPUTE_FRAMES);
-		cw.visit(Opcodes.V17, ACC_PUBLIC | ACC_FINAL | ACC_SUPER, implementationClassRawName, null, "java/lang/Object", new String[]{
-				typeRawName
-		});
+		cw.visit(Opcodes.V17, ACC_PUBLIC | ACC_FINAL | ACC_SUPER,
+				implementationClassRawName, null,
+				"java/lang/Object",
+				new String[]{
+						typeRawName
+				}
+		);
 		cw.visitSource(implementationFullInnerClassRawName, null);
 
 		var context = new WriterContext(cw,
@@ -134,7 +142,8 @@ public abstract class DynamicInvokerFactory<T> extends InvokerFactory<T> {
 		}
 
 		byte[] bytes = cw.toByteArray();
-		return (Class<? extends T>) LOOKUP.defineClass(bytes);
+		var lookup = LOOKUP.defineHiddenClass(bytes, true);
+		return lookup.findConstructor(lookup.lookupClass(), MethodType.methodType(void.class, this.type.arrayType()));
 	}
 
 	protected abstract void writeImplementationMethod(MethodVisitor mv, WriterContext context);
@@ -182,11 +191,12 @@ public abstract class DynamicInvokerFactory<T> extends InvokerFactory<T> {
 		mv.visitJumpInsn(GOTO, context.forStartLabel);
 	}
 
+	@SuppressWarnings({"unchecked", "ConfusingArgumentToVarargsMethod"})
 	@Override
 	public T apply(T[] listeners) {
 		try {
-			return this.implementationClass.getDeclaredConstructor(this.type.arrayType()).newInstance(new Object[]{listeners});
-		} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+			return (T) this.constructor.invoke(listeners);
+		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}
 	}
