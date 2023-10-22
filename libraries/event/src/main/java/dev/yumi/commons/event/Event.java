@@ -56,7 +56,7 @@ import java.util.function.Function;
  * and each phase can have a defined ordering. Each event phase is identified, ordering is done
  * by explicitly stating that event phase {@code A} will run before event phase {@code B}, for example.
  * See {@link Event#addPhaseOrdering(Comparable, Comparable)} for more information.
- * <p>
+ *
  * <h2>Example: Registering listeners</h2>
  * <p>
  * The most common use of an event will be registering a listener which is executed by the event. To register a listener,

@@ -7,21 +7,16 @@
  */
 
 /**
- * <h2>The Yumi Commons Event Framework</h2>
+ * <h2>The Event APIs</h2>
  * <p>
  * Events are used to represents specific points in a program which may need other softwares to listen and call code when
  * those points are reached.
  * <p>
  * Said events are represented using the {@link dev.yumi.commons.event.Event Event} object which stores its listeners,
  * and events are created and managed with the help of an {@link dev.yumi.commons.event.EventManager event manager}.
+ *
+ * @see dev.yumi.commons.event.Event
+ * @see dev.yumi.commons.event.EventManager
  */
 
-module dev.yumi.commons.event {
-	requires dev.yumi.commons.core;
-	requires dev.yumi.commons.collections;
-	requires org.jetbrains.annotations;
-	requires org.objectweb.asm;
-
-	exports dev.yumi.commons.event;
-	exports dev.yumi.commons.event.invoker;
-}
+package dev.yumi.commons.event;

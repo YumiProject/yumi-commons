@@ -41,7 +41,7 @@ import java.lang.annotation.*;
  * For the examples below, we will be using an event where the listener type is the interface
  * {@code ScaryEvents.Spooked}. {@code Spooked} is a functional interface where the first parameter is a ghost and the
  * second parameter is the entity being spooked. The entity being spooked is the invoking parameter.
- * <p>
+ *
  * <h2>Why make an event parameter invoking?</h2>
  * <p>
  * A good reason to make an event parameter invoking is when the event directly relates to an action performed on a
@@ -78,7 +78,7 @@ import java.lang.annotation.*;
  *
  * <pre>{@code
  * @ParameterInvokingEvent
- * public static final Event<String, ScaryEvents.Spooked> SPOOKED = [event factory].create(ScaryEvents.Spooked.class, listeners -> (ghost, spookedEntity) -> {
+ * public static final Event<String, ScaryEvents.Spooked> SPOOKED = [event manager].create(ScaryEvents.Spooked.class, listeners -> (ghost, spookedEntity) -> {
  *     // Since this event is parameter invoking, does the entity being spooked implement `Spooked`?
  *     if (spookedEntity instanceof ScaryEvents.Spooked listener) {
  *         // Since the entity implements the listener, invoke the listener on the entity.
