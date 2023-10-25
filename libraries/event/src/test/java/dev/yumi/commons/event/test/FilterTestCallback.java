@@ -9,5 +9,5 @@
 package dev.yumi.commons.event.test;
 
 public interface FilterTestCallback {
-	boolean call(String text);
+	boolean filter(String text);
 }

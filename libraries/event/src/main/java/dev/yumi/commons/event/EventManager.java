@@ -32,6 +32,8 @@ import dev.yumi.commons.event.invoker.InvokerFactory;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -43,9 +45,11 @@ import java.util.function.Function;
  */
 public final class EventManager<I extends Comparable<? super I>> {
 	private final I defaultPhaseId;
+	private final Function<String, I> phaseIdParser;
 
-	public EventManager(@NotNull I defaultPhaseId) {
+	public EventManager(@NotNull I defaultPhaseId, @NotNull Function<String, I> phaseIdParser) {
 		this.defaultPhaseId = defaultPhaseId;
+		this.phaseIdParser = phaseIdParser;
 	}
 
 	/**
@@ -250,11 +254,68 @@ public final class EventManager<I extends Comparable<? super I>> {
 	}
 
 	/**
+	 * Registers the listener to the specified events.
+	 * <p>
+	 * The registration of the listener will be rejected if one of the listed event involves generics in its listener type,
+	 * as checking for valid registration is too expensive, please use the regular {@link Event#register(Object)} method
+	 * for those as those checks will be delegated to the Java compiler.
+	 *
+	 * @param listener the listener object
+	 * @param events the events to listen
+	 * @throws IllegalArgumentException if the listener doesn't listen one of the events to listen, or if no events were specified
+	 * @see Event#register(Object)
+	 * @see Event#register(Comparable, Object)
+	 */
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	@SafeVarargs
+	public final void listenAll(Object listener, Event<I, ?>... events) {
+		if (events.length == 0) {
+			throw new IllegalArgumentException("Tried to register a listener for an empty event list.");
+		}
+
+		var listenedPhases = this.getListenedPhases(listener.getClass());
+
+		// Check whether we actually can register stuff. We only commit the registration if all events can.
+		for (var event : events) {
+			if (!event.getType().isAssignableFrom(listener.getClass())) {
+				throw new IllegalArgumentException("Given object " + listener + " is not a listener of event " + event);
+			}
+
+			if (event.getType().getTypeParameters().length > 0) {
+				throw new IllegalArgumentException("Cannot register a listener for the event " + event + " which is using generic parameters with listenAll.");
+			}
+
+			listenedPhases.putIfAbsent(event.getType(), this.defaultPhaseId);
+		}
+
+		// We can register, so we do!
+		for (var event : events) {
+			((Event) event).register(listenedPhases.get(event.getType()), listener);
+		}
+	}
+
+	/**
 	 * {@return the default phase identifier of all the events created by this event manager}
 	 */
 	@Contract(pure = true)
 	public @NotNull I getDefaultPhaseId() {
 		return this.defaultPhaseId;
+	}
+
+	private Map<Class<?>, I> getListenedPhases(Class<?> listenerClass) {
+		var map = new HashMap<Class<?>, I>();
+
+		for (var annotation : listenerClass.getAnnotations()) {
+			if (annotation instanceof ListenerPhase phase) {
+				map.put(phase.callbackTarget(), this.phaseIdParser.apply(phase.value()));
+			} else if (annotation instanceof ListenerPhases phases) {
+				for (var phase : phases.value()) {
+					map.put(phase.callbackTarget(), this.phaseIdParser.apply(phase.value()));
+				}
+			}
+		}
+
+		return map;
 	}
 
 	private void ensureContainsDefaultPhase(I[] defaultPhases) {

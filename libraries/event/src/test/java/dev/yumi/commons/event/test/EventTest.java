@@ -14,11 +14,12 @@ import dev.yumi.commons.event.EventManager;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class EventTest {
-	private static final EventManager<String> EVENTS = new EventManager<>("default");
+	private static final EventManager<String> EVENTS = new EventManager<>("default", Function.identity());
 
 	@Test
 	public void test() {
@@ -102,7 +103,7 @@ public class EventTest {
 		var tester = new ExecutionTester();
 		var event = EVENTS.create(FilterTestCallback.class);
 
-		assertFalse(event.invoker().call("Empty"));
+		assertFalse(event.invoker().filter("Empty"));
 
 		tester.reset();
 		event.register(text -> {
@@ -110,10 +111,10 @@ public class EventTest {
 			return text.isEmpty();
 		});
 
-		assertTrue(event.invoker().call(""));
+		assertTrue(event.invoker().filter(""));
 		tester.assertCalled(1);
 		tester.reset();
-		assertFalse(event.invoker().call("Single listener"));
+		assertFalse(event.invoker().filter("Single listener"));
 		tester.assertCalled(1);
 
 		tester.reset();
@@ -122,13 +123,13 @@ public class EventTest {
 			return line.contains("e");
 		});
 
-		assertTrue(event.invoker().call("Hello World!"));
+		assertTrue(event.invoker().filter("Hello World!"));
 		tester.assertCalled(2);
 		tester.reset();
-		assertTrue(event.invoker().call(""));
+		assertTrue(event.invoker().filter(""));
 		tester.assertCalled(1);
 		tester.reset();
-		assertFalse(event.invoker().call("Hi World!"));
+		assertFalse(event.invoker().filter("Hi World!"));
 		tester.assertCalled(2);
 	}
 
@@ -173,22 +174,5 @@ public class EventTest {
 		assertEquals(TriState.FALSE, event.invoker().call(""));
 		assertEquals(TriState.TRUE, event.invoker().call("\t"));
 		assertEquals(TriState.DEFAULT, event.invoker().call("Whoop"));
-	}
-
-	static class ExecutionTester {
-		private int calls;
-
-		public void reset() {
-			this.calls = 0;
-		}
-
-		public void assertOrder(int order) {
-			assertEquals(order, this.calls, "Expected listener n°" + order + " to be called.");
-			this.calls++;
-		}
-
-		public void assertCalled(int called) {
-			assertEquals(called, this.calls, "Expected a specific amount of listener calls.");
-		}
 	}
 }
