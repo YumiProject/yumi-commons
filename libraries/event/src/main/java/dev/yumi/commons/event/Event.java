@@ -115,6 +115,8 @@ import java.util.function.Function;
  *
  * @param <I> the phase identifier type
  * @param <T> the type of the invoker used to execute an event and the type of the listener
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public class Event<I extends Comparable<? super I>, T> {
 	/**

@@ -29,6 +29,7 @@ package dev.yumi.commons.event;
 import dev.yumi.commons.YumiAssertions;
 import dev.yumi.commons.event.invoker.DefaultInvokerFactory;
 import dev.yumi.commons.event.invoker.InvokerFactory;
+import dev.yumi.commons.event.invoker.SequenceInvokerFactory;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -42,14 +43,18 @@ import java.util.function.Function;
  * An event manager allows the creation of new {@link Event} instances which share the same default phase identifier.
  *
  * @param <I> the phase identifier type
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public final class EventManager<I extends Comparable<? super I>> {
 	private final I defaultPhaseId;
 	private final Function<String, I> phaseIdParser;
+	private final Event<I, EventCreation<I>> creationEvent;
 
 	public EventManager(@NotNull I defaultPhaseId, @NotNull Function<String, I> phaseIdParser) {
 		this.defaultPhaseId = defaultPhaseId;
 		this.phaseIdParser = phaseIdParser;
+		this.creationEvent = new Event<>(EventCreation.class, defaultPhaseId, new SequenceInvokerFactory<>(EventCreation.class));
 	}
 
 	/**
@@ -101,7 +106,9 @@ public final class EventManager<I extends Comparable<? super I>> {
 	 * @see #createWithPhases(Class, Function, Comparable[])
 	 */
 	public <T> @NotNull Event<I, T> create(@NotNull Class<? super T> type, @NotNull Function<T[], T> implementation) {
-		return new Event<>(type, this.defaultPhaseId, implementation);
+		var event = new Event<>(type, this.defaultPhaseId, implementation);
+		this.creationEvent.invoker().onEventCreation(this, event);
+		return event;
 	}
 
 	/**
@@ -250,6 +257,8 @@ public final class EventManager<I extends Comparable<? super I>> {
 			event.addPhaseOrdering(defaultPhases[i - 1], defaultPhases[i]);
 		}
 
+		this.creationEvent.invoker().onEventCreation(this, event);
+
 		return event;
 	}
 
@@ -300,6 +309,14 @@ public final class EventManager<I extends Comparable<? super I>> {
 	@Contract(pure = true)
 	public @NotNull I getDefaultPhaseId() {
 		return this.defaultPhaseId;
+	}
+
+	/**
+	 * {@return the event that is triggered when an event is created using this event manager}
+	 */
+	@Contract(pure = true)
+	public @NotNull Event<I, EventCreation<I>> getCreationEvent() {
+		return this.creationEvent;
 	}
 
 	private Map<Class<?>, I> getListenedPhases(Class<?> listenerClass) {
