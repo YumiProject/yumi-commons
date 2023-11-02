@@ -118,7 +118,7 @@ import java.util.function.Function;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class Event<I extends Comparable<? super I>, T> {
+public final class Event<I extends Comparable<? super I>, T> {
 	/**
 	 * The type of listener of this event.
 	 */

@@ -76,6 +76,14 @@ public final class EventManager<I extends Comparable<? super I>> {
 
 	/**
 	 * Creates a new instance of {@link Event} for which the invoker implementation is automatically generated.
+	 * <p>
+	 * The invoker implementation is automatically generated given the following conditions:
+	 * <ul>
+	 * 	<li>the listener doesn't return anything;</li>
+	 * 	<li>the listener returns a {@code boolean} as some kind of filter;</li>
+	 * 	<li>the listener returns a {@link dev.yumi.commons.TriState}, for which {@link dev.yumi.commons.TriState#DEFAULT} is the default return value,
+	 * 	and whenever a listener returns another value it returns early.</li>
+	 * </ul>
 	 *
 	 * @param type the class representing the type of the invoker that is executed by the event
 	 * @param <T> the type of the invoker executed by the event
@@ -86,6 +94,7 @@ public final class EventManager<I extends Comparable<? super I>> {
 	 * @see #createWithPhases(InvokerFactory, Comparable[])
 	 * @see #createWithPhases(Class, Comparable[])
 	 * @see #createWithPhases(Class, Function, Comparable[])
+	 * @see DefaultInvokerFactory the invoker factory used for this event
 	 */
 	public <T> @NotNull Event<I, T> create(@NotNull Class<? super T> type) {
 		return this.create(type, new DefaultInvokerFactory<>(type));
