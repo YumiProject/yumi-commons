@@ -1,9 +1,11 @@
 plugins {
 	id("dev.yumi.gradle.licenser").version("1.0.+")
-	id("java-library")
+	`java-library`
+	`maven-publish`
+	signing
 }
 
-group = "dev.yumi"
+group = "dev.yumi.commons"
 version = "1.0.0-alpha.1-SNAPSHOT"
 val javaVersion = 17
 
@@ -11,7 +13,13 @@ project(":libraries").subprojects {
 	apply {
 		plugin("dev.yumi.gradle.licenser")
 		plugin("java-library")
+		plugin("maven-publish")
+		plugin("signing")
 	}
+
+	group = rootProject.group
+	version = rootProject.version
+	base.archivesName = "yumi-commons-${project.name}"
 
 	repositories {
 		mavenCentral()
@@ -66,6 +74,34 @@ project(":libraries").subprojects {
 
 		testLogging {
 			events("passed")
+		}
+	}
+
+	publishing {
+		publications {
+			create("mavenJava", MavenPublication::class) {
+				from(components["java"])
+
+				artifactId = "yumi-commons-${project.name}"
+			}
+		}
+
+		repositories {
+			mavenLocal()
+		}
+	}
+
+	signing {
+		val signingKeyId: String? by rootProject
+		val signingKey: String? by rootProject
+		val signingPassword: String? by rootProject
+		isRequired = signingKeyId != null && signingKey != null && signingPassword != null
+		useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+
+		sign(publishing.publications["mavenJava"])
+
+		afterEvaluate {
+			tasks["signMavenJavaPublication"].group = "publishing"
 		}
 	}
 }
