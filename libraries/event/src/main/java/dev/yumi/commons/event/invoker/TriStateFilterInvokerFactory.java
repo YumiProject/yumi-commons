@@ -72,10 +72,7 @@ public class TriStateFilterInvokerFactory<T> extends DynamicInvokerFactory<T> {
 		mv.visitInsn(ARETURN); // return result;
 
 		mv.visitLabel(context.getForEndLabel());
-		mv.visitFieldInsn(GETSTATIC,
-				TriState.class.getName().replace('.', '/'), TriState.DEFAULT.name(),
-				Descriptors.describe(TriState.class)
-		);
+		this.writeGetTriStateDefault(mv);
 		mv.visitInsn(ARETURN);
 	}
 }
