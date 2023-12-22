@@ -1,4 +1,5 @@
 [versions]
+licenser = "1.0.+"
 jetbrains-annotations = "24.0.1"
 junit-jupiter = "5.10.0"
 junit-launcher = "1.10.0"
@@ -6,6 +7,7 @@ slf4j = "2.0.9"
 asm = "9.6"
 
 [libraries]
+licenser = { module = "dev.yumi:yumi-gradle-licenser", version.ref = "licenser" }
 jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit.jupiter" }
 junit-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit.launcher" }
