@@ -14,6 +14,7 @@ repositories {
 	mavenCentral()
 }
 
+// Setup publishing of artifacts.
 publishing {
 	publications {
 		create<MavenPublication>(Constants.PUBLICATION_NAME) {
@@ -59,6 +60,7 @@ publishing {
 	}
 }
 
+// Setup signing.
 signing {
 	val signingKeyId: String? by rootProject
 	val signingKey: String? by rootProject

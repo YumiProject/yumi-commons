@@ -14,6 +14,7 @@ configure<ModuleExtension> {
 
 tasks.check.get().dependsOn(tasks.register<CheckActionsRefTask>("checkActions"))
 
+// Add root project specifics to maven publication.
 publishing.publications.getByName<MavenPublication>(Constants.PUBLICATION_NAME) {
 	pom {
 		packaging = "pom"
@@ -36,9 +37,17 @@ publishing.publications.getByName<MavenPublication>(Constants.PUBLICATION_NAME) 
 
 nexusPublishing {
 	repositories {
-		sonatype {  //only for users registered in Sonatype after 24 Feb 2021
-			nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
-			snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+		val mavenCentralKey: String? by project
+		val mavenCentralSecret: String? by project
+
+		if (mavenCentralKey != null && mavenCentralSecret != null) {
+			sonatype {
+				username = mavenCentralKey
+				password = mavenCentralSecret
+
+				nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+				snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+			}
 		}
 	}
 }
