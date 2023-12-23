@@ -13,6 +13,7 @@ repositories {
 
 dependencies {
 	implementation(libs.licenser)
+	implementation(libs.nexus.publish)
 }
 
 java {

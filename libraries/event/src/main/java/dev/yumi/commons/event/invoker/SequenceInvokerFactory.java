@@ -20,6 +20,7 @@ import static org.objectweb.asm.Opcodes.*;
  * for which the invoker implementation is dynamically generated in the case the invoker doesn't return anything.
  *
  * @param <T> the type of the invoker executed by the event
+ * @author LambdAurora
  * @version 1.0.0
  * @since 1.0.0
  */

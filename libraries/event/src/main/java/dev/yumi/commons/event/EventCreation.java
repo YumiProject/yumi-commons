@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
  * Represents the event creation listener interface.
  *
  * @param <I> the type of phase identifier
+ * @author LambdAurora
  * @version 1.0.0
  * @see EventManager#getCreationEvent()
  * @since 1.0.0

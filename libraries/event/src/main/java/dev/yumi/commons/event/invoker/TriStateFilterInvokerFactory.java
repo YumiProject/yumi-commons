@@ -26,6 +26,7 @@ import static org.objectweb.asm.Opcodes.*;
  * or it returns {@link TriState#DEFAULT} otherwise.
  *
  * @param <T> the type of the invoker executed by the event
+ * @author LambdAurora
  * @version 1.0.0
  * @since 1.0.0
  */

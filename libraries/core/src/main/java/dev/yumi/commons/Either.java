@@ -292,7 +292,7 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
 		@Override
 		public String toString() {
 			return "Either{" +
-					"left=" + value +
+					"left=" + this.value +
 					'}';
 		}
 	}
@@ -397,7 +397,7 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
 		@Override
 		public String toString() {
 			return "Either{" +
-					"right=" + value +
+					"right=" + this.value +
 					'}';
 		}
 	}

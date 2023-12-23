@@ -14,8 +14,11 @@ import java.lang.annotation.*;
 /**
  * Annotates a specific callback in a listener a specific phase to listen.
  *
+ * @author LambdAurora
+ * @version 1.0.0
  * @see Event#addPhaseOrdering(Comparable, Comparable)
  * @see Event#register(Comparable, Object)
+ * @since 1.0.0
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

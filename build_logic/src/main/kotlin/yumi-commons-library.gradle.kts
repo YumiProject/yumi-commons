@@ -1,3 +1,5 @@
+import org.gradle.configurationcache.extensions.capitalized
+
 plugins {
 	id("yumi-commons-base")
 	id("dev.yumi.gradle.licenser")
@@ -50,10 +52,10 @@ tasks.withType<Test>().configureEach {
 	}
 }
 
-publishing.publications.getByName<MavenPublication>("maven") {
+publishing.publications.getByName<MavenPublication>(Constants.PUBLICATION_NAME) {
 	from(components["java"])
 
 	pom {
-		name = Constants.PROJECT_NAME + ": " + project.name.substring(0, 1).uppercase() + project.name.substring(1)
+		name = Constants.PROJECT_NAME + ": " + project.name.capitalized()
 	}
 }

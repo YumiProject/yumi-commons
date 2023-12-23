@@ -43,6 +43,7 @@ import java.util.function.Function;
  * An event manager allows the creation of new {@link Event} instances which share the same default phase identifier.
  *
  * @param <I> the phase identifier type
+ * @author LambdAurora
  * @version 1.0.0
  * @since 1.0.0
  */

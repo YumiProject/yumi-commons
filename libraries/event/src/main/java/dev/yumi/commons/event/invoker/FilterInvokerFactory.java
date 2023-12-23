@@ -25,6 +25,7 @@ import static org.objectweb.asm.Opcodes.*;
  * invoker implementation return early with that value and skip the next listeners.
  *
  * @param <T> the type of the invoker executed by the event
+ * @author LambdAurora
  * @version 1.0.0
  * @since 1.0.0
  */

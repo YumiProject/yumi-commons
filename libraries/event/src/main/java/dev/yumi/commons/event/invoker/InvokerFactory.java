@@ -20,6 +20,7 @@ import java.util.function.Function;
  * Represents the factory of an invoker implementation of an {@link dev.yumi.commons.event.Event} given an array of listeners.
  *
  * @param <T> the type of the invoker executed by the event
+ * @author LambdAurora
  * @version 1.0.0
  * @since 1.0.0
  */

@@ -1,3 +1,5 @@
+import org.gradle.configurationcache.extensions.capitalized
+
 plugins {
 	`maven-publish`
 	signing
@@ -14,13 +16,22 @@ repositories {
 
 publishing {
 	publications {
-		create<MavenPublication>("maven") {
+		create<MavenPublication>(Constants.PUBLICATION_NAME) {
 			pom {
 				url = Constants.PROJECT_URL
 
 				organization {
 					name = Constants.ORG_NAME
 					url = Constants.ORG_URL
+				}
+
+				developers {
+					Constants.DEVELOPERS.forEach {
+						developer {
+							name = it.name
+							email = it.email
+						}
+					}
 				}
 
 				licenses {
@@ -55,9 +66,9 @@ signing {
 	isRequired = signingKeyId != null && signingKey != null && signingPassword != null
 	useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
 
-	sign(publishing.publications["maven"])
+	sign(publishing.publications[Constants.PUBLICATION_NAME])
 
 	afterEvaluate {
-		tasks["signMavenPublication"].group = "publishing"
+		tasks["sign${Constants.PUBLICATION_NAME.capitalized()}Publication"].group = "publishing"
 	}
 }

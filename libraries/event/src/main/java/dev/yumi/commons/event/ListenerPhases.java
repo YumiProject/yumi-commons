@@ -14,7 +14,10 @@ import java.lang.annotation.*;
 /**
  * Represents the container type of {@link ListenerPhase} to make it repeatable.
  *
+ * @author LambdAurora
+ * @version 1.0.0
  * @see ListenerPhase
+ * @since 1.0.0
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
