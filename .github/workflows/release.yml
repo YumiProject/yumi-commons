@@ -20,6 +20,8 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: build check --stacktrace --parallel
+        env:
+          ACTIONS_REF: ${{ github.ref }}
       - uses: actions/upload-artifact@v3
         with:
           name: Artifacts
@@ -30,6 +32,7 @@ jobs:
         with:
           arguments: publish publishToSonatype closeSonatypeStagingRepository --stacktrace
         env:
+          ACTIONS_REF: ${{ github.ref }}
           ORG_GRADLE_PROJECT_sonatypeUsername: ${{ secrets.MAVEN_CENTRAL_PUBLISH_KEY }}
           ORG_GRADLE_PROJECT_sonatypePassword: ${{ secrets.MAVEN_CENTRAL_PUBLISH_SECRET }}
           ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.SIGNING_PGP_KEY_ID }}

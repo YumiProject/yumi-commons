@@ -16,9 +16,9 @@ open class CheckActionsRefTask : DefaultTask() {
 
 	@TaskAction
 	fun execute() {
-		val refName = System.getenv("ACTIONS_REF_NAME") ?: throw GradleException("Could not find GitHub Actions ref name.")
+		val refName = System.getenv("ACTIONS_REF")
 
-		if (refName != "v${Constants.VERSION}") {
+		if (refName != null && refName != "refs/tags/v${Constants.VERSION}") {
 			throw GradleException("Failed to validate ref name.")
 		}
 	}
