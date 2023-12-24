@@ -3,7 +3,7 @@ plugins {
 }
 
 configure<ModuleExtension> {
-	description = "A event framework designed to be flexible and easy to use."
+	description = "An event framework designed to be flexible and easy to use."
 }
 
 dependencies {

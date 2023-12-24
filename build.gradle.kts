@@ -9,7 +9,7 @@ plugins {
 base.archivesName = "yumi-commons"
 
 configure<ModuleExtension> {
-	description = "The Yumi Commons libraries providing various utilities."
+	description = "Yumi Commons is a set of libraries providing various utilities."
 }
 
 tasks.check.get().dependsOn(tasks.register<CheckActionsRefTask>("checkActions"))
@@ -62,6 +62,7 @@ project(":libraries").subprojects {
 	dependencies {
 		api(rootProject.libs.jetbrains.annotations)
 
+		implementation("org.sonatype.central:central-publishing-maven-plugin:0.1.6")
 		// Use JUnit Jupiter for testing.
 		testImplementation(rootProject.libs.junit.jupiter)
 		testRuntimeOnly(rootProject.libs.junit.launcher)

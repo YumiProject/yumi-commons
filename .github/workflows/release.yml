@@ -30,7 +30,7 @@ jobs:
       - name: Gradle Publish
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: publish publishToSonatype closeSonatypeStagingRepository --stacktrace
+          arguments: publish publishToSonatype closeAndReleaseSonatypeStagingRepository --stacktrace
         env:
           ACTIONS_REF: ${{ github.ref }}
           ORG_GRADLE_PROJECT_mavenCentralKey: ${{ secrets.MAVEN_CENTRAL_PUBLISH_KEY }}
