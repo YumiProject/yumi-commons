@@ -150,7 +150,7 @@ public final class Event<I extends Comparable<? super I>, T> {
 	private final List<EventPhaseData<I, T>> sortedPhases = new ArrayList<>();
 
 	@SuppressWarnings("unchecked")
-	protected Event(
+	Event(
 			@NotNull Class<? super T> type,
 			@NotNull I defaultPhaseId,
 			@NotNull Function<T[], T> invokerFactory
