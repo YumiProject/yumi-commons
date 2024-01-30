@@ -62,7 +62,6 @@ project(":libraries").subprojects {
 	dependencies {
 		api(rootProject.libs.jetbrains.annotations)
 
-		implementation("org.sonatype.central:central-publishing-maven-plugin:0.1.6")
 		// Use JUnit Jupiter for testing.
 		testImplementation(rootProject.libs.junit.jupiter)
 		testRuntimeOnly(rootProject.libs.junit.launcher)
