@@ -14,6 +14,3 @@
 *.png           binary
 *.so            binary
 *.war           binary
-
-# Custom
-src/functionalTest/resources/src/main/java/test/TestClassCrlf*.java  text eol=crlf
