@@ -1,5 +1,3 @@
-import org.gradle.configurationcache.extensions.capitalized
-
 plugins {
 	`maven-publish`
 	signing
@@ -71,6 +69,6 @@ signing {
 	sign(publishing.publications[Constants.PUBLICATION_NAME])
 
 	afterEvaluate {
-		tasks["sign${Constants.PUBLICATION_NAME.capitalized()}Publication"].group = "publishing"
+		tasks["sign${Constants.PUBLICATION_NAME.replaceFirstChar(Char::titlecase)}Publication"].group = "publishing"
 	}
 }

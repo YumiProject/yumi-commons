@@ -7,6 +7,7 @@ plugins {
 }
 
 base.archivesName = "yumi-commons-" + project.name
+val fullName = "${Constants.PROJECT_NAME}: ${project.name}"
 
 java {
 	toolchain {
@@ -34,8 +35,9 @@ tasks.withType<Javadoc>().configureEach {
 }
 
 tasks.jar {
+	val archivesName = base.archivesName.get()
 	from(rootProject.file("LICENSE")) {
-		rename { "${it}_${base.archivesName.get()}" }
+		rename { "${it}_${archivesName}" }
 	}
 }
 
@@ -56,6 +58,6 @@ publishing.publications.getByName<MavenPublication>(Constants.PUBLICATION_NAME) 
 	from(components["java"])
 
 	pom {
-		name = Constants.PROJECT_NAME + ": " + project.name.capitalized()
+		name = fullName
 	}
 }

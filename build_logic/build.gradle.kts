@@ -8,6 +8,7 @@ plugins {
 val javaVersion = 17
 
 repositories {
+	mavenLocal()
 	gradlePluginPortal()
 }
 
