@@ -8,7 +8,6 @@
 
 package dev.yumi.commons.event;
 
-
 import java.lang.annotation.*;
 
 /**
