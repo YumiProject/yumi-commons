@@ -272,6 +272,16 @@ public final class EventManager<I extends Comparable<? super I>> {
 		return event;
 	}
 
+	public <T, C> @NotNull FilteredEvent<I, T, C> createFiltered(@NotNull Class<? super T> type) {
+		return this.createFiltered(type, new DefaultInvokerFactory<>(type));
+	}
+
+	public <T, C> @NotNull FilteredEvent<I, T, C> createFiltered(@NotNull Class<? super T> type, @NotNull Function<T[], T> implementation) {
+		var event = new FilteredEvent<I, T, C>(type, this.defaultPhaseId, implementation);
+		this.creationEvent.invoker().onEventCreation(this, event);
+		return event;
+	}
+
 	/**
 	 * Registers the listener to the specified events.
 	 * <p>
@@ -296,20 +306,20 @@ public final class EventManager<I extends Comparable<? super I>> {
 
 		// Check whether we actually can register stuff. We only commit the registration if all events can.
 		for (var event : events) {
-			if (!event.getType().isAssignableFrom(listener.getClass())) {
+			if (!event.type().isAssignableFrom(listener.getClass())) {
 				throw new IllegalArgumentException("Given object " + listener + " is not a listener of event " + event);
 			}
 
-			if (event.getType().getTypeParameters().length > 0) {
+			if (event.type().getTypeParameters().length > 0) {
 				throw new IllegalArgumentException("Cannot register a listener for the event " + event + " which is using generic parameters with listenAll.");
 			}
 
-			listenedPhases.putIfAbsent(event.getType(), this.defaultPhaseId);
+			listenedPhases.putIfAbsent(event.type(), this.defaultPhaseId);
 		}
 
 		// We can register, so we do!
 		for (var event : events) {
-			((Event) event).register(listenedPhases.get(event.getType()), listener);
+			((Event) event).register(listenedPhases.get(event.type()), listener);
 		}
 	}
 
