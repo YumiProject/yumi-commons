@@ -36,6 +36,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Represents an {@link Event} manager.
@@ -171,7 +172,7 @@ public final class EventManager<I extends Comparable<? super I>> {
 	 *
 	 * @param invokerFactory the factory which generates an invoker implementation using an array of listeners
 	 * @param defaultPhases the default phases of this event, in the correct order.
-	 * Must contain {@link EventManager#getDefaultPhaseId() the default phase identifier}
+	 * Must contain {@link EventManager#defaultPhaseId() the default phase identifier}
 	 * @param <T> the type of the invoker executed by the event
 	 * @return a new event instance
 	 * @see #create(Class)
@@ -207,7 +208,7 @@ public final class EventManager<I extends Comparable<? super I>> {
 	 *
 	 * @param type the class representing the type of the invoker that is executed by the event
 	 * @param defaultPhases the default phases of this event, in the correct order.
-	 * Must contain {@link EventManager#getDefaultPhaseId() the default phase identifier}
+	 * Must contain {@link EventManager#defaultPhaseId() the default phase identifier}
 	 * @param <T> the type of the invoker executed by the event
 	 * @return a new event instance
 	 * @see #create(Class)
@@ -242,7 +243,7 @@ public final class EventManager<I extends Comparable<? super I>> {
 	 * @param type the class representing the type of the invoker that is executed by the event
 	 * @param implementation a function which generates an invoker implementation using an array of listeners
 	 * @param defaultPhases the default phases of this event, in the correct order.
-	 * Must contain {@link EventManager#getDefaultPhaseId() the default phase identifier}
+	 * Must contain {@link EventManager#defaultPhaseId() the default phase identifier}
 	 * @param <T> the type of the invoker executed by the event
 	 * @return a new event instance
 	 * @see #create(Class)
@@ -258,28 +259,130 @@ public final class EventManager<I extends Comparable<? super I>> {
 			@NotNull Function<T[], T> implementation,
 			@NotNull I... defaultPhases
 	) {
-		this.ensureContainsDefaultPhase(defaultPhases);
-		YumiAssertions.ensureNoDuplicates(defaultPhases, id -> new IllegalArgumentException("Duplicate event phase: " + id));
-
-		var event = this.create(type, implementation);
-
-		for (int i = 1; i < defaultPhases.length; ++i) {
-			event.addPhaseOrdering(defaultPhases[i - 1], defaultPhases[i]);
-		}
-
-		this.creationEvent.invoker().onEventCreation(this, event);
-
-		return event;
+		return this.createWithPhases(() -> new Event<>(type, this.defaultPhaseId, implementation), defaultPhases);
 	}
 
-	public <T, C> @NotNull FilteredEvent<I, T, C> createFiltered(@NotNull Class<? super T> type) {
-		return this.createFiltered(type, new DefaultInvokerFactory<>(type));
+	public <T, C> @NotNull FilteredEvent<I, T, C> createFiltered(@NotNull Class<? super T> type, @NotNull Class<? super C> contextType) {
+		return this.createFiltered(type, contextType, new DefaultInvokerFactory<>(type));
 	}
 
-	public <T, C> @NotNull FilteredEvent<I, T, C> createFiltered(@NotNull Class<? super T> type, @NotNull Function<T[], T> implementation) {
+	public <T, C> @NotNull FilteredEvent<I, T, C> createFiltered(
+			@NotNull Class<? super T> type,
+			@NotNull Class<? super C> contextType,
+			@NotNull Function<T[], T> implementation
+	) {
 		var event = new FilteredEvent<I, T, C>(type, this.defaultPhaseId, implementation);
 		this.creationEvent.invoker().onEventCreation(this, event);
 		return event;
+	}
+
+	/**
+	 * Create a new instance of {@link Event} with a list of default phases that get invoked in order.
+	 * Exposing the identifiers of the default phases as {@code public static final} constants is encouraged.
+	 * <p>
+	 * An event phase is a named group of listeners, which may be ordered before or after other groups of listeners.
+	 * This allows some listeners to take priority over other listeners.
+	 * Adding separate events should be considered before making use of multiple event phases.
+	 * <p>
+	 * Phases may be freely added to events created with any of the factory functions,
+	 * however using this function is preferred for widely used event phases.
+	 * If more phases are necessary, discussion with the author of the event is encouraged.
+	 * <p>
+	 * Refer to {@link Event#addPhaseOrdering} for an explanation of event phases.
+	 *
+	 * @param invokerFactory the factory which generates an invoker implementation using an array of listeners
+	 * @param defaultPhases the default phases of this event, in the correct order.
+	 * Must contain {@link EventManager#defaultPhaseId() the default phase identifier}
+	 * @param <T> the type of the invoker executed by the event
+	 * @return a new event instance
+	 * @see #create(Class)
+	 * @see #create(InvokerFactory)
+	 * @see #create(Class, Function)
+	 * @see #create(Class, Object, Function)
+	 * @see #createWithPhases(Class, Comparable[])
+	 * @see #createWithPhases(InvokerFactory, Comparable[])
+	 */
+	@SuppressWarnings("unchecked")
+	public <T, C> @NotNull FilteredEvent<I, T, C> createFilteredWithPhases(
+			@NotNull Class<C> contextType,
+			@NotNull InvokerFactory<T> invokerFactory,
+			@NotNull I... defaultPhases
+	) {
+		return this.createFilteredWithPhases(invokerFactory.type(), contextType, invokerFactory, defaultPhases);
+	}
+
+	/**
+	 * Create a new instance of {@link Event} with a list of default phases that get invoked in order.
+	 * Exposing the identifiers of the default phases as {@code public static final} constants is encouraged.
+	 * <p>
+	 * An event phase is a named group of listeners, which may be ordered before or after other groups of listeners.
+	 * This allows some listeners to take priority over other listeners.
+	 * Adding separate events should be considered before making use of multiple event phases.
+	 * <p>
+	 * Phases may be freely added to events created with any of the factory functions,
+	 * however using this function is preferred for widely used event phases.
+	 * If more phases are necessary, discussion with the author of the event is encouraged.
+	 * <p>
+	 * Refer to {@link Event#addPhaseOrdering} for an explanation of event phases.
+	 * <p>
+	 * This method uses an automatically generated invoker implementation.
+	 *
+	 * @param type the class representing the type of the invoker that is executed by the event
+	 * @param defaultPhases the default phases of this event, in the correct order.
+	 * Must contain {@link EventManager#defaultPhaseId() the default phase identifier}
+	 * @param <T> the type of the invoker executed by the event
+	 * @return a new event instance
+	 * @see #create(Class)
+	 * @see #create(InvokerFactory)
+	 * @see #create(Class, Function)
+	 * @see #create(Class, Object, Function)
+	 * @see #createWithPhases(InvokerFactory, Comparable[])
+	 * @see #createWithPhases(Class, Function, Comparable[])
+	 */
+	@SuppressWarnings("unchecked")
+	public <T, C> @NotNull FilteredEvent<I, T, C> createFilteredWithPhases(
+			@NotNull Class<? super T> type,
+			@NotNull Class<C> contextType,
+			@NotNull I... defaultPhases
+	) {
+		return this.createFilteredWithPhases(type, contextType, new DefaultInvokerFactory<>(type), defaultPhases);
+	}
+
+	/**
+	 * Create a new instance of {@link Event} with a list of default phases that get invoked in order.
+	 * Exposing the identifiers of the default phases as {@code public static final} constants is encouraged.
+	 * <p>
+	 * An event phase is a named group of listeners, which may be ordered before or after other groups of listeners.
+	 * This allows some listeners to take priority over other listeners.
+	 * Adding separate events should be considered before making use of multiple event phases.
+	 * <p>
+	 * Phases may be freely added to events created with any of the factory functions,
+	 * however using this function is preferred for widely used event phases.
+	 * If more phases are necessary, discussion with the author of the event is encouraged.
+	 * <p>
+	 * Refer to {@link Event#addPhaseOrdering} for an explanation of event phases.
+	 *
+	 * @param type the class representing the type of the invoker that is executed by the event
+	 * @param implementation a function which generates an invoker implementation using an array of listeners
+	 * @param defaultPhases the default phases of this event, in the correct order.
+	 * Must contain {@link EventManager#defaultPhaseId() the default phase identifier}
+	 * @param <T> the type of the invoker executed by the event
+	 * @return a new event instance
+	 * @see #create(Class)
+	 * @see #create(InvokerFactory)
+	 * @see #create(Class, Function)
+	 * @see #create(Class, Object, Function)
+	 * @see #createWithPhases(Class, Comparable[])
+	 * @see #createWithPhases(InvokerFactory, Comparable[])
+	 */
+	@SafeVarargs
+	public final <T, C> @NotNull FilteredEvent<I, T, C> createFilteredWithPhases(
+			@NotNull Class<? super T> type,
+			@NotNull Class<C> contextType,
+			@NotNull Function<T[], T> implementation,
+			@NotNull I... defaultPhases
+	) {
+		return this.createWithPhases(() -> new FilteredEvent<>(type, this.defaultPhaseId, implementation), defaultPhases);
 	}
 
 	/**
@@ -327,7 +430,7 @@ public final class EventManager<I extends Comparable<? super I>> {
 	 * {@return the default phase identifier of all the events created by this event manager}
 	 */
 	@Contract(pure = true)
-	public @NotNull I getDefaultPhaseId() {
+	public @NotNull I defaultPhaseId() {
 		return this.defaultPhaseId;
 	}
 
@@ -337,6 +440,26 @@ public final class EventManager<I extends Comparable<? super I>> {
 	@Contract(pure = true)
 	public @NotNull Event<I, EventCreation<I>> getCreationEvent() {
 		return this.creationEvent;
+	}
+
+	/* Implementation */
+
+	private <E extends Event<I, ?>> E createWithPhases(
+			Supplier<E> eventSupplier,
+			@NotNull I... defaultPhases
+	) {
+		this.ensureContainsDefaultPhase(defaultPhases);
+		YumiAssertions.ensureNoDuplicates(defaultPhases, id -> new IllegalArgumentException("Duplicate event phase: " + id));
+
+		var event = eventSupplier.get();
+
+		for (int i = 1; i < defaultPhases.length; i++) {
+			event.addPhaseOrdering(defaultPhases[i - 1], defaultPhases[i]);
+		}
+
+		this.creationEvent.invoker().onEventCreation(this, event);
+
+		return event;
 	}
 
 	private Map<Class<?>, I> getListenedPhases(Class<?> listenerClass) {

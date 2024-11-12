@@ -9,17 +9,40 @@
 package dev.yumi.commons.event.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ExecutionTester {
+	private int callOrder;
+	private boolean strictOrder = true;
 	private int calls;
 
-	public void reset() {
+	public ExecutionTester useStrictOrder(boolean strictOrder) {
+		this.strictOrder = strictOrder;
+		return this;
+	}
+
+	public ExecutionTester reset() {
+		this.callOrder = 0;
+		this.strictOrder = true;
 		this.calls = 0;
+
+		return this;
 	}
 
 	public void assertOrder(int order) {
-		assertEquals(order, this.calls, "Expected listener n°" + order + " to be called.");
+		if (this.strictOrder) {
+			assertEquals(order, this.callOrder, "Expected listener n°" + order + " to be called.");
+			this.callOrder++;
+		} else {
+			assertTrue(this.callOrder <= order, "Expected any listener before n°" + order + " to be called.");
+			this.callOrder = order;
+		}
+
 		this.calls++;
+	}
+
+	public void skip() {
+		this.callOrder++;
 	}
 
 	public void assertCalled(int called) {

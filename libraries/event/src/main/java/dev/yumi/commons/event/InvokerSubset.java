@@ -13,8 +13,24 @@ import org.jetbrains.annotations.NotNull;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
-public class InvokerSubset<I extends Comparable<? super I>, T, C> implements InvokableEvent<T> {
+/**
+ * Represents a subset of listeners of a {@linkplain FilteredEvent filtered event}.
+ *
+ * @param <I> the phase identifier type
+ * @param <T> the type of the listeners, and the type of the invoker used to execute an event
+ * @param <C> the type of the context used to filter out which listeners should be invoked by this subset
+ * @author LambdAurora
+ * @version 1.0.0
+ * @since 1.0.0
+ */
+public final class InvokerSubset<I extends Comparable<? super I>, T, C> implements InvokableEvent<T> {
+	/**
+	 * The parent filtered event from which the subset comes from.
+	 */
 	private final FilteredEvent<I, T, C> parent;
+	/**
+	 * The context relevant to this subset of listeners.
+	 */
 	private final C context;
 	/**
 	 * The invoker to execute the callbacks.

@@ -41,5 +41,10 @@ public class EventCreationTest {
 		var filterEvent = events.create(FilterTestCallback.class);
 		tester.assertCalled(1);
 		assertSame(filterEvent, lastEvent[0]);
+
+		tester.reset();
+		var phasedEvent = events.createWithPhases(TestCallback.class, "pre", "default", "post");
+		tester.assertCalled(1);
+		assertSame(phasedEvent, lastEvent[0]);
 	}
 }

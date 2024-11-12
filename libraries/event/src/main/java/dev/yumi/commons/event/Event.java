@@ -116,7 +116,7 @@ import java.util.function.Function;
  * }</pre>
  *
  * @param <I> the phase identifier type
- * @param <T> the type of the invoker used to execute an event and the type of the listeners
+ * @param <T> the type of the listeners, and the type of the invoker used to execute an event
  * @version 1.0.0
  * @since 1.0.0
  */
