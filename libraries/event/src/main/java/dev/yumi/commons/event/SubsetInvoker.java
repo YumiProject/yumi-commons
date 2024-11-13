@@ -23,7 +23,7 @@ import java.util.ArrayList;
  * @version 1.0.0
  * @since 1.0.0
  */
-public final class InvokerSubset<I extends Comparable<? super I>, T, C> implements InvokableEvent<T> {
+public final class SubsetInvoker<I extends Comparable<? super I>, T, C> implements InvokableEvent<T> {
 	/**
 	 * The parent filtered event from which the subset comes from.
 	 */
@@ -37,7 +37,7 @@ public final class InvokerSubset<I extends Comparable<? super I>, T, C> implemen
 	 */
 	private volatile T invoker;
 
-	public InvokerSubset(FilteredEvent<I, T, C> parent, C context) {
+	public SubsetInvoker(FilteredEvent<I, T, C> parent, C context) {
 		this.parent = parent;
 		this.context = context;
 		this.rebuildInvoker();

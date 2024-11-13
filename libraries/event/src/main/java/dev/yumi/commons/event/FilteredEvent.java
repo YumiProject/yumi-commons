@@ -107,11 +107,11 @@ public final class FilteredEvent<I extends Comparable<? super I>, T, C> extends 
 	/**
 	 * Reference queue for cleared invoker subsets.
 	 */
-	private final ReferenceQueue<InvokerSubset<I, T, C>> queue = new ReferenceQueue<>();
+	private final ReferenceQueue<SubsetInvoker<I, T, C>> queue = new ReferenceQueue<>();
 	/**
 	 * A cache of currently alive invoker subsets.
 	 */
-	private final Set<WeakReference<InvokerSubset<I, T, C>>> subsets = new HashSet<>();
+	private final Set<WeakReference<SubsetInvoker<I, T, C>>> subsets = new HashSet<>();
 
 	FilteredEvent(@NotNull Class<? super T> type, @NotNull I defaultPhaseId, @NotNull Function<T[], T> invokerFactory) {
 		super(type, defaultPhaseId, invokerFactory);
@@ -162,8 +162,8 @@ public final class FilteredEvent<I extends Comparable<? super I>, T, C> extends 
 	 * @param context the current context
 	 * @return an invoker for a subset of listeners
 	 */
-	public InvokerSubset<I, T, C> forContext(C context) {
-		var subset = new InvokerSubset<>(this, context);
+	public SubsetInvoker<I, T, C> forContext(C context) {
+		var subset = new SubsetInvoker<>(this, context);
 
 		this.lock.lock();
 		try {
