@@ -16,6 +16,7 @@
  * and events are created and managed with the help of an {@link dev.yumi.commons.event.EventManager event manager}.
  *
  * @see dev.yumi.commons.event.Event
+ * @see dev.yumi.commons.event.FilteredEvent
  * @see dev.yumi.commons.event.EventManager
  */
 
