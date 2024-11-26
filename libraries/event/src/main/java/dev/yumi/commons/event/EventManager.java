@@ -546,6 +546,7 @@ public final class EventManager<I extends Comparable<? super I>> {
 
 	/* Implementation */
 
+	@SafeVarargs
 	private <E extends Event<I, ?>> E createWithPhases(
 			Supplier<E> eventSupplier,
 			@NotNull I... defaultPhases
