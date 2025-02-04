@@ -17,9 +17,8 @@
  */
 
 module dev.yumi.commons.event {
-	requires dev.yumi.commons.core;
+	requires transitive dev.yumi.commons.core;
 	requires dev.yumi.commons.collections;
-	requires org.jetbrains.annotations;
 	requires org.objectweb.asm;
 
 	exports dev.yumi.commons.event;

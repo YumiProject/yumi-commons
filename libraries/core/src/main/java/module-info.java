@@ -7,7 +7,7 @@
  */
 
 module dev.yumi.commons.core {
-	requires org.jetbrains.annotations;
+	requires transitive org.jetbrains.annotations;
 
 	exports dev.yumi.commons;
 	exports dev.yumi.commons.function;

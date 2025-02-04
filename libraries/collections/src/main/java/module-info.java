@@ -7,8 +7,7 @@
  */
 
 module dev.yumi.commons.collections {
-	requires dev.yumi.commons.core;
-	requires org.jetbrains.annotations;
+	requires transitive dev.yumi.commons.core;
 	requires org.slf4j;
 
 	exports dev.yumi.commons.collections;
