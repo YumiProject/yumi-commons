@@ -172,6 +172,28 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
 	<NL, NR> Either<NL, NR> map(@NotNull Function<? super L, ? extends NL> leftMapper, @NotNull Function<? super R, ? extends NR> rightMapper);
 
 	/**
+	 * If this either represents a left value,
+	 * returns an {@code Either} given by the given mapping function,
+	 * otherwise returns itself.
+	 *
+	 * @param mapper the mapping function to apply to the value, if this either represents a left value
+	 * @param <NL> the type to map the left value to
+	 * @return an {@code Either} describing the result of applying the mapping function to the value this holds
+	 */
+	<NL> Either<NL, R> flatMapLeft(@NotNull Function<? super L, ? extends Either<NL, R>> mapper);
+
+	/**
+	 * If this either represents a right value,
+	 * returns an {@code Either} given by the given mapping function,
+	 * otherwise returns itself.
+	 *
+	 * @param mapper the mapping function to apply to the value, if this either represents a right value
+	 * @param <NR> the type to map the right value to
+	 * @return an {@code Either} describing the result of applying the mapping function to the value this holds
+	 */
+	<NR> Either<L, NR> flatMapRight(@NotNull Function<? super R, ? extends Either<L, NR>> mapper);
+
+	/**
 	 * Folds this {@code Either} into a singular value.
 	 *
 	 * @param leftMapper the mapping function to apply to the value, if this either represents a left value
@@ -195,16 +217,11 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
 	/**
 	 * Represents the left value of an {@link Either}.
 	 *
+	 * @param value the left value
 	 * @param <L> the type of the left value
 	 * @param <R> the type of the right value
 	 */
-	final class Left<L, R> implements Either<L, R> {
-		private final L value;
-
-		private Left(L value) {
-			this.value = value;
-		}
-
+	record Left<L, R>(L value) implements Either<L, R> {
 		@Override
 		public L getLeft() {
 			return this.value;
@@ -267,6 +284,18 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
 		}
 
 		@Override
+		public <NL> Either<NL, R> flatMapLeft(@NotNull Function<? super L, ? extends Either<NL, R>> mapper) {
+			return mapper.apply(this.value);
+		}
+
+		@SuppressWarnings("unchecked")
+		@Contract(value = "_ -> this", pure = true)
+		@Override
+		public <NR> Either<L, NR> flatMapRight(@NotNull Function<? super R, ? extends Either<L, NR>> mapper) {
+			return (Either<L, NR>) this;
+		}
+
+		@Override
 		public <U> U fold(@NotNull Function<? super L, ? extends U> leftMapper, @NotNull Function<? super R, ? extends U> rightMapper) {
 			return leftMapper.apply(this.value);
 		}
@@ -300,16 +329,11 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
 	/**
 	 * Represents the right value of an {@link Either}.
 	 *
+	 * @param value the right value
 	 * @param <L> the type of the left value
 	 * @param <R> the type of the right value
 	 */
-	final class Right<L, R> implements Either<L, R> {
-		private final R value;
-
-		private Right(R value) {
-			this.value = value;
-		}
-
+	record Right<L, R>(R value) implements Either<L, R> {
 		@Contract(value = "-> fail", pure = true)
 		@Override
 		public L getLeft() {
@@ -369,6 +393,18 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
 		@Override
 		public <NL, NR> Either<NL, NR> map(@NotNull Function<? super L, ? extends NL> leftMapper, @NotNull Function<? super R, ? extends NR> rightMapper) {
 			return new Right<>(rightMapper.apply(this.value));
+		}
+
+		@SuppressWarnings("unchecked")
+		@Contract(value = "_ -> this", pure = true)
+		@Override
+		public <NL> Either<NL, R> flatMapLeft(@NotNull Function<? super L, ? extends Either<NL, R>> mapper) {
+			return (Either<NL, R>) this;
+		}
+
+		@Override
+		public <NR> Either<L, NR> flatMapRight(@NotNull Function<? super R, ? extends Either<L, NR>> mapper) {
+			return mapper.apply(this.value);
 		}
 
 		@Override

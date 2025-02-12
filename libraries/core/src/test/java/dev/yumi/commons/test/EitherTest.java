@@ -146,6 +146,25 @@ public class EitherTest {
 	}
 
 	@Test
+	public void testFlatMap() {
+		var left = Either.left(1L);
+		var right = Either.right("Hello");
+
+		assertEquals(Either.left(2), left.flatMapLeft(value -> Either.left(value.intValue() + 1)));
+		assertSame(left, left.flatMapRight(o -> {
+			throw new AssertionError("mapRight on Either.Left should not call mapper function.");
+		}), "mapRight on Either.Left should return itself.");
+
+		assertSame(right, right.flatMapLeft(o -> {
+			throw new AssertionError("mapLeft on Either.Right should not call mapper function.");
+		}), "mapLeft on Either.Right should return itself.");
+		assertEquals(Either.right("Hello World!"), right.flatMapRight(value -> Either.right(value + " World!")));
+
+		assertEquals(Either.right("Hello 1!"), left.flatMapLeft(value -> Either.right("Hello " + value + "!")));
+		assertEquals(Either.left(5), right.flatMapRight(value -> Either.left(value.length())));
+	}
+
+	@Test
 	public void testFold() {
 		var left = Either.left(1L);
 		var right = Either.right("Hello");
