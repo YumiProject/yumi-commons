@@ -67,7 +67,7 @@ import java.util.function.Function;
  * <pre>{@code
  * // Events are created and managed by an EventManager.
  * // They are given a type for the phase identifiers and the default phase identifier.
- * static final EventManager<String> EVENT_MANAGER = new EventManager("default");
+ * static final EventManager<String> EVENT_MANAGER = new EventManager("default", Function.identity());
  *
  * // Events should use a dedicated functional interface for T rather than overloading multiple events to the same type
  * // to allow those who implement using a class to implement multiple events.

@@ -53,6 +53,13 @@ public final class EventManager<I extends Comparable<? super I>> {
 	private final Function<String, I> phaseIdParser;
 	private final Event<I, EventCreation<I>> creationEvent;
 
+	/**
+	 * Constructs a new {@link EventManager} instance.
+	 *
+	 * @param defaultPhaseId the identifier of the default phase
+	 * @param phaseIdParser a function to parse phase identifiers from a given string,
+	 * this is used for the {@link ListenerPhase} annotation
+	 */
 	public EventManager(@NotNull I defaultPhaseId, @NotNull Function<String, I> phaseIdParser) {
 		this.defaultPhaseId = defaultPhaseId;
 		this.phaseIdParser = phaseIdParser;
