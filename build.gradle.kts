@@ -8,7 +8,7 @@ plugins {
 
 base.archivesName = "yumi-commons"
 
-configure<ModuleExtension> {
+module {
 	description = "Yumi Commons is a set of libraries providing various utilities."
 }
 
@@ -63,6 +63,7 @@ project(":libraries").subprojects {
 		api(rootProject.libs.jetbrains.annotations)
 
 		// Use JUnit Jupiter for testing.
+		testImplementation(platform(rootProject.libs.junit.bom))
 		testImplementation(rootProject.libs.junit.jupiter)
 		testRuntimeOnly(rootProject.libs.junit.launcher)
 	}

@@ -2,6 +2,6 @@ plugins {
 	id("yumi-commons-library")
 }
 
-configure<ModuleExtension> {
+module {
 	description = "A library containing core utilities for the Yumi ecosystem."
 }

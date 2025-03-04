@@ -2,7 +2,7 @@ plugins {
 	id("yumi-commons-library")
 }
 
-configure<ModuleExtension> {
+module {
 	description = "A library of collections-related utilities."
 }
 

@@ -2,7 +2,7 @@ plugins {
 	id("yumi-commons-library")
 }
 
-configure<ModuleExtension> {
+module {
 	description = "An event framework designed to be flexible and easy to use."
 }
 
