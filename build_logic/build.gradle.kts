@@ -15,6 +15,7 @@ repositories {
 dependencies {
 	implementation(libs.licenser)
 	implementation(libs.nexus.publish)
+	implementation(libs.gson)
 }
 
 java {

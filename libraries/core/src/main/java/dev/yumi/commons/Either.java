@@ -134,7 +134,10 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
 	 * @param leftAction the action to be performed, if this either represents a left value
 	 * @param rightAction the action to be performed, if this either represents a right value
 	 */
-	void apply(@NotNull Consumer<? super L> leftAction, @NotNull Consumer<? super R> rightAction);
+	void apply(
+			@NotNull Consumer<? super L> leftAction,
+			@NotNull Consumer<? super R> rightAction
+	);
 
 	/**
 	 * If this either represents a left value,
@@ -169,7 +172,10 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
 	 * @param <NR> the type to map the right value to
 	 * @return an {@code Either} describing the result of applying either of the mapping function to the value this holds
 	 */
-	<NL, NR> Either<NL, NR> map(@NotNull Function<? super L, ? extends NL> leftMapper, @NotNull Function<? super R, ? extends NR> rightMapper);
+	<NL, NR> Either<NL, NR> map(
+			@NotNull Function<? super L, ? extends NL> leftMapper,
+			@NotNull Function<? super R, ? extends NR> rightMapper
+	);
 
 	/**
 	 * If this either represents a left value,
@@ -180,7 +186,9 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
 	 * @param <NL> the type to map the left value to
 	 * @return an {@code Either} describing the result of applying the mapping function to the value this holds
 	 */
-	<NL> Either<NL, R> flatMapLeft(@NotNull Function<? super L, ? extends Either<NL, R>> mapper);
+	<NL> Either<NL, R> flatMapLeft(
+			@NotNull Function<? super L, ? extends Either<NL, R>> mapper
+	);
 
 	/**
 	 * If this either represents a right value,
@@ -191,7 +199,9 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
 	 * @param <NR> the type to map the right value to
 	 * @return an {@code Either} describing the result of applying the mapping function to the value this holds
 	 */
-	<NR> Either<L, NR> flatMapRight(@NotNull Function<? super R, ? extends Either<L, NR>> mapper);
+	<NR> Either<L, NR> flatMapRight(
+			@NotNull Function<? super R, ? extends Either<L, NR>> mapper
+	);
 
 	/**
 	 * Folds this {@code Either} into a singular value.
@@ -201,7 +211,10 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
 	 * @param <U> the type to map either the left or right value to
 	 * @return the mapped value given by either mapper functions
 	 */
-	<U> U fold(@NotNull Function<? super L, ? extends U> leftMapper, @NotNull Function<? super R, ? extends U> rightMapper);
+	<U> U fold(
+			@NotNull Function<? super L, ? extends U> leftMapper,
+			@NotNull Function<? super R, ? extends U> rightMapper
+	);
 
 	/**
 	 * Swaps the right and left values.
@@ -279,7 +292,10 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
 		}
 
 		@Override
-		public <NL, NR> Either<NL, NR> map(@NotNull Function<? super L, ? extends NL> leftMapper, @NotNull Function<? super R, ? extends NR> rightMapper) {
+		public <NL, NR> Either<NL, NR> map(
+				@NotNull Function<? super L, ? extends NL> leftMapper,
+				@NotNull Function<? super R, ? extends NR> rightMapper
+		) {
 			return new Left<>(leftMapper.apply(this.value));
 		}
 
@@ -296,7 +312,10 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
 		}
 
 		@Override
-		public <U> U fold(@NotNull Function<? super L, ? extends U> leftMapper, @NotNull Function<? super R, ? extends U> rightMapper) {
+		public <U> U fold(
+				@NotNull Function<? super L, ? extends U> leftMapper,
+				@NotNull Function<? super R, ? extends U> rightMapper
+		) {
 			return leftMapper.apply(this.value);
 		}
 
@@ -391,7 +410,10 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
 		}
 
 		@Override
-		public <NL, NR> Either<NL, NR> map(@NotNull Function<? super L, ? extends NL> leftMapper, @NotNull Function<? super R, ? extends NR> rightMapper) {
+		public <NL, NR> Either<NL, NR> map(
+				@NotNull Function<? super L, ? extends NL> leftMapper,
+				@NotNull Function<? super R, ? extends NR> rightMapper
+		) {
 			return new Right<>(rightMapper.apply(this.value));
 		}
 
@@ -408,7 +430,10 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
 		}
 
 		@Override
-		public <U> U fold(@NotNull Function<? super L, ? extends U> leftMapper, @NotNull Function<? super R, ? extends U> rightMapper) {
+		public <U> U fold(
+				@NotNull Function<? super L, ? extends U> leftMapper,
+				@NotNull Function<? super R, ? extends U> rightMapper
+		) {
 			return rightMapper.apply(this.value);
 		}
 

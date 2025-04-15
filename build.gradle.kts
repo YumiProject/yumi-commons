@@ -9,7 +9,7 @@ plugins {
 base.archivesName = "yumi-commons"
 
 module {
-	description = "Yumi Commons is a set of libraries providing various utilities."
+	description = Constants.PROJECT_DESCRIPTION
 }
 
 tasks.check.get().dependsOn(tasks.register<CheckActionsRefTask>("checkActions"))

@@ -6,7 +6,7 @@ plugins {
 group = Constants.GROUP
 version = Constants.VERSION
 
-val moduleExtension = project.extensions.create<ModuleExtension>("module")
+val moduleExtension = project.extensions.create<ModuleExtension>("module", project)
 
 repositories {
 	mavenCentral()

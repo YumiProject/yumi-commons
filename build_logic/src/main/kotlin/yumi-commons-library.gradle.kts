@@ -1,4 +1,4 @@
-import org.gradle.configurationcache.extensions.capitalized
+import task.GenerateMetadataTask
 
 plugins {
 	id("yumi-commons-base")
@@ -6,8 +6,8 @@ plugins {
 	`java-library`
 }
 
-base.archivesName = "yumi-commons-" + project.name
-val fullName = "${Constants.PROJECT_NAME}: ${project.name}"
+base.archivesName = Constants.getArtifactName(project.name)
+val fullName = "${Constants.PROJECT_NAME}: ${project.name.replaceFirstChar(Char::titlecase)}"
 
 java {
 	toolchain {
@@ -24,6 +24,9 @@ tasks.withType<JavaCompile>().configureEach {
 	options.encoding = "UTF-8"
 	options.isDeprecation = true
 	options.release.set(Constants.JAVA_VERSION)
+
+	// Java Modules
+	options.javaModuleVersion = provider { version as String }
 }
 
 tasks.withType<Javadoc>().configureEach {
@@ -34,11 +37,33 @@ tasks.withType<Javadoc>().configureEach {
 	}
 }
 
+val generateMetadata = tasks.register<GenerateMetadataTask>("generateMetadata") {
+	val moduleExt = project.extensions.getByType(ModuleExtension::class.java)
+
+	name.set(fullName)
+	description.set(moduleExt.description)
+
+	dependencies.set(moduleExt.dependencies)
+}
+
 tasks.jar {
-	val archivesName = base.archivesName.get()
-	from(rootProject.file("LICENSE")) {
-		rename { "${it}_${archivesName}" }
+	inputs.property("archivesName", base.archivesName)
+	inputs.property("version", project.version)
+
+	manifest {
+		attributes(
+			mapOf(
+				"Implementation-Version" to inputs.properties["version"],
+				"FMLModType" to "LIBRARY"
+			)
+		)
 	}
+
+	from(rootProject.file("LICENSE")) {
+		rename { "${it}_${inputs.properties["archivesName"]}" }
+	}
+
+	from(generateMetadata)
 }
 
 license {
