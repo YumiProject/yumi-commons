@@ -37,6 +37,7 @@ import static org.objectweb.asm.Opcodes.*;
  * @since 1.0.0
  */
 public abstract class DynamicInvokerFactory<T> extends InvokerFactory<T> {
+	private static final Module MODULE = DynamicInvokerFactory.class.getModule();
 	private static final AtomicInteger CLASS_COUNTER = new AtomicInteger(0);
 	protected static final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
 	protected final MethodType listenerMethodType;
@@ -49,6 +50,7 @@ public abstract class DynamicInvokerFactory<T> extends InvokerFactory<T> {
 	protected DynamicInvokerFactory(@NotNull Class<? super T> type, @NotNull Method listenerMethod) {
 		super(type);
 		this.checkMethod(listenerMethod);
+		this.ensureModuleConstraints();
 
 		try {
 			this.listenerMethodType = MethodType.methodType(listenerMethod.getReturnType(), listenerMethod.getParameterTypes());
@@ -81,6 +83,12 @@ public abstract class DynamicInvokerFactory<T> extends InvokerFactory<T> {
 	 */
 	@Contract(pure = true)
 	protected abstract void checkMethod(@NotNull Method method);
+
+	private void ensureModuleConstraints() {
+		// Since we are defining a class that implements type at runtime,
+		// we need to ensure we can actually read the class we implement.
+		MODULE.addReads(this.type.getModule());
+	}
 
 	private MethodHandle buildClass(
 			String listenerMethodName,
