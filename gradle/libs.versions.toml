@@ -10,6 +10,7 @@ junit = "5.12.0"
 
 # Gradle
 licenser = "2.1.+"
+gradle-jmh = "0.7.3"
 nexus-publish = "2.0.0"
 gson = "2.13.0"
 
@@ -28,5 +29,6 @@ junit-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 
 # Gradle
 licenser = { module = "dev.yumi:yumi-gradle-licenser", version.ref = "licenser" }
+gradle-jmh = { module = "me.champeau.jmh:jmh-gradle-plugin", version.ref = "gradle-jmh" }
 nexus-publish = { module = "io.github.gradle-nexus:publish-plugin", version.ref = "nexus-publish" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }

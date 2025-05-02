@@ -1,5 +1,6 @@
 plugins {
 	id("yumi-commons-library")
+	id("me.champeau.jmh")
 }
 
 module {
@@ -12,4 +13,13 @@ dependencies {
 	api(libs.asm)
 
 	testImplementation(libs.slf4j.simple)
+}
+
+jmh {
+	fork.set(2)
+	threads.set(4)
+}
+
+sourceSets.jmh.configure {
+	compileClasspath += sourceSets.test.get().output
 }
