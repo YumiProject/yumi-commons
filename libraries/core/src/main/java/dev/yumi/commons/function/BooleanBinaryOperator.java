@@ -11,6 +11,7 @@ package dev.yumi.commons.function;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
 import java.util.function.BinaryOperator;
 
 /**
@@ -28,15 +29,15 @@ import java.util.function.BinaryOperator;
 @FunctionalInterface
 public interface BooleanBinaryOperator {
 	/**
-	 * Represents the AND boolean operator.
+	 * Represents the {@code AND} boolean operator.
 	 */
 	BooleanBinaryOperator AND = (a, b) -> a && b;
 	/**
-	 * Represents the OR boolean operator.
+	 * Represents the {@code OR} boolean operator.
 	 */
 	BooleanBinaryOperator OR = (a, b) -> a || b;
 	/**
-	 * Represents the XOR boolean operator.
+	 * Represents the {@code XOR} boolean operator.
 	 */
 	BooleanBinaryOperator XOR = (a, b) -> a ^ b;
 
@@ -55,5 +56,35 @@ public interface BooleanBinaryOperator {
 	@Contract(pure = true)
 	default @NotNull BooleanBinaryOperator negate() {
 		return (a, b) -> !this.apply(a, b);
+	}
+
+	/**
+	 * {@return a binary operator that represents the logical {@code AND} between this binary operator and the given binary operator}
+	 *
+	 * @param other the other binary operator
+	 */
+	default @NotNull BooleanBinaryOperator and(@NotNull BooleanBinaryOperator other) {
+		Objects.requireNonNull(other);
+		return (a, b) -> this.apply(a, b) && other.apply(a, b);
+	}
+
+	/**
+	 * {@return a binary operator that represents the logical {@code OR} between this binary operator and the given binary operator}
+	 *
+	 * @param other the other binary operator
+	 */
+	default @NotNull BooleanBinaryOperator or(@NotNull BooleanBinaryOperator other) {
+		Objects.requireNonNull(other);
+		return (a, b) -> this.apply(a, b) || other.apply(a, b);
+	}
+
+	/**
+	 * {@return a binary operator that represents the logical {@code XOR} between this binary operator and the given binary operator}
+	 *
+	 * @param other the other binary operator
+	 */
+	default @NotNull BooleanBinaryOperator xor(@NotNull BooleanBinaryOperator other) {
+		Objects.requireNonNull(other);
+		return (a, b) -> this.apply(a, b) ^ other.apply(a, b);
 	}
 }

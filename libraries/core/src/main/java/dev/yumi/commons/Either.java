@@ -338,7 +338,7 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
 		}
 
 		@Override
-		public String toString() {
+		public @NotNull String toString() {
 			return "Either{" +
 					"left=" + this.value +
 					'}';
@@ -456,7 +456,7 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
 		}
 
 		@Override
-		public String toString() {
+		public @NotNull String toString() {
 			return "Either{" +
 					"right=" + this.value +
 					'}';

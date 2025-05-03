@@ -8,6 +8,9 @@
 
 package dev.yumi.commons.function;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
 import java.util.function.Function;
 
 /**
@@ -34,10 +37,27 @@ public interface ToByteFunction<T> {
 	byte applyAsByte(T value);
 
 	/**
+	 * Returns a composed function that first applies the {@code before}
+	 * function to its input, and then applies this function to the result.
+	 * If evaluation of either function throws an exception, it is relayed to
+	 * the caller of the composed function.
+	 *
+	 * @param <V> the type of input to the {@code before} function, and to the composed function
+	 * @param before the function to apply before this function is applied
+	 * @return a composed function that first applies the {@code before}
+	 * function and then applies this function
+	 * @throws NullPointerException if before is {@code null}
+	 */
+	default <V> @NotNull ToByteFunction<V> compose(@NotNull Function<? super V, ? extends T> before) {
+		Objects.requireNonNull(before);
+		return v -> this.applyAsByte(before.apply(v));
+	}
+
+	/**
 	 * {@return a function that always returns {@code 0}}
 	 * @param <T> the type of the input objects to the function
 	 */
-	static <T> ToByteFunction<T> zero() {
+	static <T> @NotNull ToByteFunction<T> zero() {
 		return ignored -> (byte) 0;
 	}
 }
