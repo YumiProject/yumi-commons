@@ -26,10 +26,10 @@ public class SequenceInvokerFactoryBenchmark {
 
 	@BenchmarkMode(Mode.AverageTime)
 	@OutputTimeUnit(TimeUnit.NANOSECONDS)
-	public static class Creation {
+	public static class Instantiation {
 		@Benchmark
-		public void baseLineSequenceInvokerFactoryCreation(Blackhole blackhole) {
-			var factory = new InvokerFactory<>(JmhTestCallback.class) {
+		public InvokerFactory<JmhTestCallback> baseLineSequenceInvokerFactoryInstantiation() {
+			return new InvokerFactory<>(JmhTestCallback.class) {
 				@Override
 				public JmhTestCallback apply(JmhTestCallback[] callbacks) {
 					return (bh, dummy) -> {
@@ -39,13 +39,44 @@ public class SequenceInvokerFactoryBenchmark {
 					};
 				}
 			};
-			blackhole.consume(factory.apply(DUMMY_CALLBACKS));
 		}
 
 		@Benchmark
-		public void sequenceInvokerFactoryCreation(Blackhole blackhole) {
-			var factory = new SequenceInvokerFactory<>(JmhTestCallback.class);
-			blackhole.consume(factory.apply(DUMMY_CALLBACKS));
+		public InvokerFactory<JmhTestCallback> sequenceInvokerFactoryInstantiation() {
+			return new SequenceInvokerFactory<>(JmhTestCallback.class);
+		}
+	}
+
+	@BenchmarkMode(Mode.AverageTime)
+	@OutputTimeUnit(TimeUnit.NANOSECONDS)
+	@State(Scope.Benchmark)
+	public static class Creation {
+		private InvokerFactory<JmhTestCallback> baseLineInvokerFactory;
+		private InvokerFactory<JmhTestCallback> sequenceInvokerFactory;
+
+		@Setup(Level.Trial)
+		public void setup() {
+			this.baseLineInvokerFactory = new InvokerFactory<>(JmhTestCallback.class) {
+				@Override
+				public JmhTestCallback apply(JmhTestCallback[] callbacks) {
+					return (bh, dummy) -> {
+						for (var callback : callbacks) {
+							callback.call(bh, dummy);
+						}
+					};
+				}
+			};
+			this.sequenceInvokerFactory = new SequenceInvokerFactory<>(JmhTestCallback.class);
+		}
+
+		@Benchmark
+		public JmhTestCallback baseLineSequenceInvokerFactoryCreation() {
+			return this.baseLineInvokerFactory.apply(DUMMY_CALLBACKS);
+		}
+
+		@Benchmark
+		public JmhTestCallback sequenceInvokerFactoryCreation() {
+			return this.sequenceInvokerFactory.apply(DUMMY_CALLBACKS);
 		}
 	}
 
@@ -66,8 +97,8 @@ public class SequenceInvokerFactoryBenchmark {
 
 		private static final InvokerFactory<JmhTestCallback> SEQUENCE_FACTORY = new SequenceInvokerFactory<>(JmhTestCallback.class);
 
-		public JmhTestCallback baseLineInvoker;
-		public JmhTestCallback sequenceInvoker;
+		private JmhTestCallback baseLineInvoker;
+		private JmhTestCallback sequenceInvoker;
 
 		@Setup(Level.Trial)
 		public void setup() {
