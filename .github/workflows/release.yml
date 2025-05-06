@@ -32,7 +32,7 @@ jobs:
           path: ./build/libs/
 
       - name: "Gradle Publish"
-        run: ./gradlew publish publishToSonatype closeAndReleaseSonatypeStagingRepository --stacktrace
+        run: ./gradlew publish publishToSonatype closeAndReleaseSonatypeStagingRepository --stacktrace --no-configuration-cache
         env:
           ACTIONS_REF: ${{ github.ref }}
           ORG_GRADLE_PROJECT_mavenCentralKey: ${{ secrets.MAVEN_CENTRAL_PUBLISH_KEY }}
