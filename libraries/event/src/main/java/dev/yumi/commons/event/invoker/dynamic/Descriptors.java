@@ -6,12 +6,14 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package dev.yumi.commons.event.invoker;
+package dev.yumi.commons.event.invoker.dynamic;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.objectweb.asm.Type;
 
 import java.lang.invoke.MethodType;
 
+@ApiStatus.Internal
 final class Descriptors {
 	private Descriptors() {
 		throw new UnsupportedOperationException("Descriptors only contain static definitions.");

@@ -9,7 +9,7 @@
 package dev.yumi.commons.event.benchmark;
 
 import dev.yumi.commons.event.invoker.InvokerFactory;
-import dev.yumi.commons.event.invoker.SequenceInvokerFactory;
+import dev.yumi.commons.event.invoker.dynamic.SequenceInvokerFactory;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
 

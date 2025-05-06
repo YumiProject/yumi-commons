@@ -6,9 +6,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package dev.yumi.commons.event.invoker;
+package dev.yumi.commons.event.invoker.dynamic;
 
 import dev.yumi.commons.TriState;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -30,6 +31,7 @@ import static org.objectweb.asm.Opcodes.*;
  * @version 1.0.0
  * @since 1.0.0
  */
+@ApiStatus.Internal
 public final class TriStateFilterInvokerFactory<T> extends DynamicInvokerFactory<T> {
 	public TriStateFilterInvokerFactory(@NotNull Class<? super T> type) {
 		super(type);

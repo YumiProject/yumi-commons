@@ -29,7 +29,7 @@ package dev.yumi.commons.event;
 import dev.yumi.commons.YumiAssertions;
 import dev.yumi.commons.event.invoker.DefaultInvokerFactory;
 import dev.yumi.commons.event.invoker.InvokerFactory;
-import dev.yumi.commons.event.invoker.SequenceInvokerFactory;
+import dev.yumi.commons.event.invoker.dynamic.SequenceInvokerFactory;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 

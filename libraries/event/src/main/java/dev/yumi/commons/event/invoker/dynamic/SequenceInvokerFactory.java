@@ -6,8 +6,9 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package dev.yumi.commons.event.invoker;
+package dev.yumi.commons.event.invoker.dynamic;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.MethodVisitor;
 
@@ -24,6 +25,7 @@ import static org.objectweb.asm.Opcodes.RETURN;
  * @version 1.0.0
  * @since 1.0.0
  */
+@ApiStatus.Internal
 public final class SequenceInvokerFactory<T> extends DynamicInvokerFactory<T> {
 	public SequenceInvokerFactory(@NotNull Class<? super T> type) {
 		super(type);

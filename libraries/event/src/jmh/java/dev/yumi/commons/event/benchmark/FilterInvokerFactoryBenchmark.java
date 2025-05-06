@@ -8,7 +8,7 @@
 
 package dev.yumi.commons.event.benchmark;
 
-import dev.yumi.commons.event.invoker.FilterInvokerFactory;
+import dev.yumi.commons.event.invoker.dynamic.FilterInvokerFactory;
 import dev.yumi.commons.event.invoker.InvokerFactory;
 import dev.yumi.commons.event.test.FilterTestCallback;
 import org.openjdk.jmh.annotations.*;

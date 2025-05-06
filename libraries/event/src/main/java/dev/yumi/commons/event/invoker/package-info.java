@@ -25,7 +25,6 @@
  *
  * @see dev.yumi.commons.event
  * @see dev.yumi.commons.event.invoker.InvokerFactory
- * @see dev.yumi.commons.event.invoker.DynamicInvokerFactory
  * @see dev.yumi.commons.event.invoker.DefaultInvokerFactory
  */
 

@@ -6,10 +6,13 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package dev.yumi.commons.event.invoker;
+package dev.yumi.commons.event.invoker.dynamic;
+
+import org.jetbrains.annotations.ApiStatus;
 
 import static org.objectweb.asm.Opcodes.*;
 
+@ApiStatus.Internal
 final class OpcodeUtils {
 	private OpcodeUtils() {
 		throw new UnsupportedOperationException("OpcodeUtils only contains static definition.");

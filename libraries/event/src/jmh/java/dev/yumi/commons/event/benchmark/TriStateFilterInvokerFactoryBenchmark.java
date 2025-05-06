@@ -10,7 +10,7 @@ package dev.yumi.commons.event.benchmark;
 
 import dev.yumi.commons.TriState;
 import dev.yumi.commons.event.invoker.InvokerFactory;
-import dev.yumi.commons.event.invoker.TriStateFilterInvokerFactory;
+import dev.yumi.commons.event.invoker.dynamic.TriStateFilterInvokerFactory;
 import dev.yumi.commons.event.test.TriStateCallback;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;

@@ -6,8 +6,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package dev.yumi.commons.event.invoker;
+package dev.yumi.commons.event.invoker.dynamic;
 
+import dev.yumi.commons.event.invoker.InvokerFactory;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.*;
@@ -29,6 +31,8 @@ import static org.objectweb.asm.Opcodes.*;
  * @version 1.0.0
  * @since 1.0.0
  */
+// TODO Java 25: replace ASM with the Class File API.
+@ApiStatus.Internal
 sealed abstract class DynamicInvokerFactory<T> extends InvokerFactory<T>
 		permits FilterInvokerFactory, SequenceInvokerFactory, TriStateFilterInvokerFactory {
 	private static final String SELF_BINARY_NAME = DynamicInvokerFactory.class.getName().replace('.', '/');
@@ -67,7 +71,7 @@ sealed abstract class DynamicInvokerFactory<T> extends InvokerFactory<T>
 					)
 			);
 		} catch (IllegalAccessException | NoSuchMethodException e) {
-			throw new RuntimeException(e);
+			throw new DynamicInvokerCreationException("Failed to generate the dynamic invoker factory", e);
 		}
 	}
 
@@ -122,7 +126,11 @@ sealed abstract class DynamicInvokerFactory<T> extends InvokerFactory<T>
 			mv.visitVarInsn(ALOAD, 0);
 			mv.visitVarInsn(ALOAD, 1);
 			mv.visitTypeInsn(CHECKCAST, "[L" + typeRawName + ";");
-			mv.visitMethodInsn(INVOKEVIRTUAL, name.classRawName(), "apply", "([L%s;)L%s;".formatted(typeRawName, typeRawName), false);
+			mv.visitMethodInsn(
+					INVOKEVIRTUAL,
+					name.classRawName(), "apply", "([L%s;)L%s;".formatted(typeRawName, typeRawName),
+					false
+			);
 			mv.visitInsn(ARETURN);
 			mv.visitMaxs(2, 2);
 			mv.visitEnd();
@@ -186,7 +194,7 @@ sealed abstract class DynamicInvokerFactory<T> extends InvokerFactory<T>
 		try {
 			return (Function<T[], T>) constructor.invoke();
 		} catch (Throwable e) {
-			throw new RuntimeException(e);
+			throw new DynamicInvokerCreationException("Failed to instantiate the generated invoker factory constructor.", e);
 		}
 	}
 
@@ -380,6 +388,12 @@ sealed abstract class DynamicInvokerFactory<T> extends InvokerFactory<T>
 
 		public String classRawName() {
 			return this.outerClassFullRawName + "$" + this.innerClassName;
+		}
+	}
+
+	static class DynamicInvokerCreationException extends RuntimeException {
+		public DynamicInvokerCreationException(String message, Throwable cause) {
+			super(message, cause);
 		}
 	}
 }
