@@ -8,6 +8,10 @@
 
 package dev.yumi.commons.event.invoker;
 
+import org.objectweb.asm.Type;
+
+import java.lang.invoke.MethodType;
+
 final class Descriptors {
 	private Descriptors() {
 		throw new UnsupportedOperationException("Descriptors only contain static definitions.");
@@ -54,5 +58,16 @@ final class Descriptors {
 			case LONG, DOUBLE -> 2;
 			default -> 1;
 		};
+	}
+
+	public static Type asmType(MethodType methodType) {
+		var returnType = Type.getType(methodType.returnType());
+		var args = new Type[methodType.parameterCount()];
+
+		for (int i = 0; i < args.length; i++) {
+			args[i] = Type.getType(methodType.parameterType(i));
+		}
+
+		return Type.getMethodType(returnType, args);
 	}
 }

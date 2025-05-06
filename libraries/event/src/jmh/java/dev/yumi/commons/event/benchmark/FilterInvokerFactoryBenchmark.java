@@ -28,10 +28,10 @@ public class FilterInvokerFactoryBenchmark {
 
 	@BenchmarkMode(Mode.AverageTime)
 	@OutputTimeUnit(TimeUnit.NANOSECONDS)
-	public static class Creation {
+	public static class Instantiation {
 		@Benchmark
-		public void baseLineFilterInvokerFactoryCreation(Blackhole blackhole) {
-			var factory = new InvokerFactory<>(FilterTestCallback.class) {
+		public InvokerFactory<FilterTestCallback> baseLineFilterInvokerFactoryInstantiation() {
+			return new InvokerFactory<>(FilterTestCallback.class) {
 				@Override
 				public FilterTestCallback apply(FilterTestCallback[] callbacks) {
 					return (dummy) -> {
@@ -45,13 +45,48 @@ public class FilterInvokerFactoryBenchmark {
 					};
 				}
 			};
-			blackhole.consume(factory.apply(DUMMY_CALLBACKS));
 		}
 
 		@Benchmark
-		public void filterInvokerFactoryCreation(Blackhole blackhole) {
-			var factory = new FilterInvokerFactory<>(FilterTestCallback.class, false);
-			blackhole.consume(factory.apply(DUMMY_CALLBACKS));
+		public InvokerFactory<FilterTestCallback> filterInvokerFactoryInstantiation() {
+			return new FilterInvokerFactory<>(FilterTestCallback.class, false);
+		}
+	}
+
+	@BenchmarkMode(Mode.AverageTime)
+	@OutputTimeUnit(TimeUnit.NANOSECONDS)
+	@State(Scope.Benchmark)
+	public static class Creation {
+		private InvokerFactory<FilterTestCallback> baseLineInvokerFactory;
+		private InvokerFactory<FilterTestCallback> filterInvokerFactory;
+
+		@Setup(Level.Trial)
+		public void setup() {
+			this.baseLineInvokerFactory = new InvokerFactory<>(FilterTestCallback.class) {
+				@Override
+				public FilterTestCallback apply(FilterTestCallback[] callbacks) {
+					return (dummy) -> {
+						for (var callback : callbacks) {
+							if (callback.filter(dummy)) {
+								return true;
+							}
+						}
+
+						return false;
+					};
+				}
+			};
+			this.filterInvokerFactory = new FilterInvokerFactory<>(FilterTestCallback.class, false);
+		}
+
+		@Benchmark
+		public FilterTestCallback baseLineFilterInvokerFactoryCreation() {
+			return this.baseLineInvokerFactory.apply(DUMMY_CALLBACKS);
+		}
+
+		@Benchmark
+		public FilterTestCallback filterInvokerFactoryCreation() {
+			return this.filterInvokerFactory.apply(DUMMY_CALLBACKS);
 		}
 	}
 

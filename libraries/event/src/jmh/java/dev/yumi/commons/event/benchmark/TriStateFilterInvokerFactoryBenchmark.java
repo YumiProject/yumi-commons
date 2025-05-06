@@ -17,6 +17,7 @@ import org.openjdk.jmh.infra.Blackhole;
 
 import java.util.concurrent.TimeUnit;
 
+@SuppressWarnings("DuplicatedCode")
 public class TriStateFilterInvokerFactoryBenchmark {
 	private static final TriStateCallback[] DUMMY_CALLBACKS = new TriStateCallback[]{
 			text -> TriState.DEFAULT,
@@ -29,10 +30,10 @@ public class TriStateFilterInvokerFactoryBenchmark {
 
 	@BenchmarkMode(Mode.AverageTime)
 	@OutputTimeUnit(TimeUnit.NANOSECONDS)
-	public static class Creation {
+	public static class Instantiation {
 		@Benchmark
-		public void baseLineFilterInvokerFactoryCreation(Blackhole blackhole) {
-			var factory = new InvokerFactory<>(TriStateCallback.class) {
+		public InvokerFactory<TriStateCallback> baseLineFilterInvokerFactoryInstantiation() {
+			return new InvokerFactory<>(TriStateCallback.class) {
 				@Override
 				public TriStateCallback apply(TriStateCallback[] callbacks) {
 					return (dummy) -> {
@@ -48,13 +49,50 @@ public class TriStateFilterInvokerFactoryBenchmark {
 					};
 				}
 			};
-			blackhole.consume(factory.apply(DUMMY_CALLBACKS));
 		}
 
 		@Benchmark
-		public void filterInvokerFactoryCreation(Blackhole blackhole) {
-			var factory = new TriStateFilterInvokerFactory<>(TriStateCallback.class);
-			blackhole.consume(factory.apply(DUMMY_CALLBACKS));
+		public InvokerFactory<TriStateCallback> filterInvokerFactoryInstantiation() {
+			return new TriStateFilterInvokerFactory<>(TriStateCallback.class);
+		}
+	}
+
+	@BenchmarkMode(Mode.AverageTime)
+	@OutputTimeUnit(TimeUnit.NANOSECONDS)
+	@State(Scope.Benchmark)
+	public static class Creation {
+		private InvokerFactory<TriStateCallback> baseLineInvokerFactory;
+		private InvokerFactory<TriStateCallback> filterInvokerFactory;
+
+		@Setup(Level.Trial)
+		public void setup() {
+			this.baseLineInvokerFactory = new InvokerFactory<>(TriStateCallback.class) {
+				@Override
+				public TriStateCallback apply(TriStateCallback[] callbacks) {
+					return (dummy) -> {
+						for (var callback : callbacks) {
+							var result = callback.call(dummy);
+
+							if (result != TriState.DEFAULT) {
+								return result;
+							}
+						}
+
+						return TriState.DEFAULT;
+					};
+				}
+			};
+			this.filterInvokerFactory = new TriStateFilterInvokerFactory<>(TriStateCallback.class);
+		}
+
+		@Benchmark
+		public TriStateCallback baseLineFilterInvokerFactoryCreation() {
+			return this.baseLineInvokerFactory.apply(DUMMY_CALLBACKS);
+		}
+
+		@Benchmark
+		public TriStateCallback filterInvokerFactoryCreation() {
+			return this.filterInvokerFactory.apply(DUMMY_CALLBACKS);
 		}
 	}
 

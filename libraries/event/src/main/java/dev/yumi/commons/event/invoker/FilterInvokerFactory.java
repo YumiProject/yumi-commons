@@ -29,7 +29,7 @@ import static org.objectweb.asm.Opcodes.*;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class FilterInvokerFactory<T> extends DynamicInvokerFactory<T> {
+public final class FilterInvokerFactory<T> extends DynamicInvokerFactory<T> {
 	private final boolean invert;
 
 	public FilterInvokerFactory(@NotNull Class<? super T> type, boolean invert) {

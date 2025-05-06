@@ -67,7 +67,7 @@ public abstract class InvokerFactory<T> implements Function<T[], T> {
 		}
 
 		if (listenerMethod == null) {
-			throw new IllegalArgumentException("The given listener type isn't a function interface.");
+			throw new IllegalArgumentException("The given listener type isn't a functional interface.");
 		}
 
 		return listenerMethod;

@@ -30,7 +30,7 @@ import static org.objectweb.asm.Opcodes.*;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class TriStateFilterInvokerFactory<T> extends DynamicInvokerFactory<T> {
+public final class TriStateFilterInvokerFactory<T> extends DynamicInvokerFactory<T> {
 	public TriStateFilterInvokerFactory(@NotNull Class<? super T> type) {
 		super(type);
 	}

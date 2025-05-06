@@ -13,7 +13,7 @@ import org.objectweb.asm.MethodVisitor;
 
 import java.lang.reflect.Method;
 
-import static org.objectweb.asm.Opcodes.*;
+import static org.objectweb.asm.Opcodes.RETURN;
 
 /**
  * Represents a factory of an invoker implementation of an {@link dev.yumi.commons.event.Event} given an array of listeners
@@ -24,7 +24,7 @@ import static org.objectweb.asm.Opcodes.*;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class SequenceInvokerFactory<T> extends DynamicInvokerFactory<T> {
+public final class SequenceInvokerFactory<T> extends DynamicInvokerFactory<T> {
 	public SequenceInvokerFactory(@NotNull Class<? super T> type) {
 		super(type);
 	}

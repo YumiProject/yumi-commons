@@ -11,6 +11,7 @@ package dev.yumi.commons.event.test;
 import dev.yumi.commons.TriState;
 import dev.yumi.commons.collections.YumiCollections;
 import dev.yumi.commons.event.EventManager;
+import dev.yumi.commons.event.invoker.SequenceInvokerFactory;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

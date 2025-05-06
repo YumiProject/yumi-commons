@@ -10,20 +10,13 @@ package dev.yumi.commons.event.invoker;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.*;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
+import java.lang.invoke.*;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -36,12 +29,14 @@ import static org.objectweb.asm.Opcodes.*;
  * @version 1.0.0
  * @since 1.0.0
  */
-public abstract class DynamicInvokerFactory<T> extends InvokerFactory<T> {
+sealed abstract class DynamicInvokerFactory<T> extends InvokerFactory<T>
+		permits FilterInvokerFactory, SequenceInvokerFactory, TriStateFilterInvokerFactory {
+	private static final String SELF_BINARY_NAME = DynamicInvokerFactory.class.getName().replace('.', '/');
 	private static final Module MODULE = DynamicInvokerFactory.class.getModule();
-	private static final AtomicInteger CLASS_COUNTER = new AtomicInteger(0);
 	protected static final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
 	protected final MethodType listenerMethodType;
-	protected final MethodHandle constructor;
+	protected final MethodType lambdaMethodType;
+	protected final Function<T[], T> factory;
 
 	protected DynamicInvokerFactory(@NotNull Class<? super T> type) {
 		this(type, getFunctionalMethod(type));
@@ -54,22 +49,22 @@ public abstract class DynamicInvokerFactory<T> extends InvokerFactory<T> {
 
 		try {
 			this.listenerMethodType = MethodType.methodType(listenerMethod.getReturnType(), listenerMethod.getParameterTypes());
-			var implementationInnerClassRawName = this.type.getSimpleName() + CLASS_COUNTER.getAndIncrement() + "Impl";
+			this.lambdaMethodType = this.listenerMethodType.insertParameterTypes(0, type.arrayType());
 
-			var implName = "$" + implementationInnerClassRawName;
-			//noinspection ConstantValue
-			if (this.getClass() != DynamicInvokerFactory.class) {
-				implName = "$" + this.getClass().getSimpleName() + implName;
-			}
+			var implementationInnerClassRawName = this.type.getSimpleName() + "Impl";
+
+			var implName = "$" + this.getClass().getSimpleName();
 			var implementationFullInnerClassRawName = DynamicInvokerFactory.class.getSimpleName() + implName;
-			var implementationClassRawName = DynamicInvokerFactory.class.getName().replace('.', '/') + implName;
+			var implementationClassRawName = SELF_BINARY_NAME + implName;
 
-			this.constructor = this.buildClass(
+			this.factory = this.buildClass(
 					listenerMethod.getName(),
 					this.type.getName().replace('.', '/'),
-					implementationInnerClassRawName,
-					implementationFullInnerClassRawName,
-					implementationClassRawName
+					new ImplementationName(
+							implementationInnerClassRawName,
+							implementationFullInnerClassRawName,
+							implementationClassRawName
+					)
 			);
 		} catch (IllegalAccessException | NoSuchMethodException e) {
 			throw new RuntimeException(e);
@@ -90,59 +85,64 @@ public abstract class DynamicInvokerFactory<T> extends InvokerFactory<T> {
 		MODULE.addReads(this.type.getModule());
 	}
 
-	private MethodHandle buildClass(
+	@SuppressWarnings("unchecked")
+	private Function<T[], T> buildClass(
 			String listenerMethodName,
 			String typeRawName,
-			String implementationInnerClassRawName,
-			String implementationFullInnerClassRawName,
-			String implementationClassRawName
+			ImplementationName name
 	) throws IllegalAccessException, NoSuchMethodException {
+		String factoryDescriptor = MethodType.methodType(this.type, this.type.arrayType()).toMethodDescriptorString();
+
 		var cw = new ClassWriter(ClassWriter.COMPUTE_MAXS + ClassWriter.COMPUTE_FRAMES);
 		cw.visit(Opcodes.V17, ACC_PUBLIC | ACC_FINAL | ACC_SUPER,
-				implementationClassRawName, null,
+				name.classRawName(),
+				"Ljava/util/function/Function<[L" + typeRawName + ";" + typeRawName + ";>;",
 				"java/lang/Object",
 				new String[]{
-						typeRawName
+						"java/util/function/Function",
 				}
 		);
-		cw.visitSource(implementationFullInnerClassRawName, null);
-
-		var context = new WriterContext(cw,
-				listenerMethodName,
-				typeRawName,
-				implementationInnerClassRawName,
-				implementationFullInnerClassRawName,
-				implementationClassRawName,
-				this.getParamTable()
-		);
-
-		context.addField("listeners", Descriptors.describe(this.type.arrayType()));
+		cw.visitSource(name.fullInnerClassRawName(), null);
 
 		{ // Write implementation class constructor
-			var descriptor = new StringBuilder("(");
-			for (var field : context.fields.values()) {
-				descriptor.append(field);
-			}
-			descriptor.append(")V");
-
-			var mv = cw.visitMethod(ACC_PUBLIC, "<init>", descriptor.toString(), null, null);
+			var mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
 			mv.visitVarInsn(ALOAD, 0);
 			mv.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
-			int offset = 1;
-			for (var field : context.fields.entrySet()) {
-				mv.visitVarInsn(ALOAD, 0);
-				mv.visitVarInsn(OpcodeUtils.getLoadOpcodeFromType(field.getValue()), offset);
-				mv.visitFieldInsn(PUTFIELD, implementationClassRawName, field.getKey(), field.getValue());
-
-				offset += Descriptors.getTypeSize(field.getValue());
-			}
 			mv.visitInsn(RETURN);
 			mv.visitMaxs(0, 0);
 			mv.visitEnd();
 		}
 
-		{
-			var mv = cw.visitMethod(ACC_PUBLIC, listenerMethodName, this.listenerMethodType.toMethodDescriptorString(), null, null);
+		{ // Write Function apply bridge
+			var mv = cw.visitMethod(
+					ACC_PUBLIC | ACC_SYNTHETIC | ACC_BRIDGE,
+					"apply", "(Ljava/lang/Object;)Ljava/lang/Object;",
+					null, null
+			);
+			mv.visitVarInsn(ALOAD, 0);
+			mv.visitVarInsn(ALOAD, 1);
+			mv.visitTypeInsn(CHECKCAST, "[L" + typeRawName + ";");
+			mv.visitMethodInsn(INVOKEVIRTUAL, name.classRawName(), "apply", "([L%s;)L%s;".formatted(typeRawName, typeRawName), false);
+			mv.visitInsn(ARETURN);
+			mv.visitMaxs(2, 2);
+			mv.visitEnd();
+		}
+
+		{ // Write lambda
+			var mv = cw.visitMethod(
+					ACC_PRIVATE | ACC_STATIC | ACC_SYNTHETIC,
+					"lambda$apply", this.lambdaMethodType.toMethodDescriptorString(),
+					null, null
+			);
+
+			var context = new WriterContext(
+					listenerMethodName,
+					typeRawName,
+					name.innerClassName(),
+					name.fullInnerClassRawName(),
+					name.classRawName(),
+					this.getParamTable()
+			);
 
 			this.writeImplementationMethod(mv, context);
 
@@ -150,9 +150,75 @@ public abstract class DynamicInvokerFactory<T> extends InvokerFactory<T> {
 			mv.visitEnd();
 		}
 
+		{ // Write Function apply bridge
+			var mv = cw.visitMethod(
+					ACC_PUBLIC,
+					"apply", factoryDescriptor,
+					null, null
+			);
+			mv.visitVarInsn(ALOAD, 1);
+			mv.visitInvokeDynamicInsn(
+					listenerMethodName, factoryDescriptor,
+					new Handle(
+							H_INVOKESTATIC,
+							SELF_BINARY_NAME, "metafactory",
+							"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;",
+							false
+					),
+					Descriptors.asmType(this.listenerMethodType),
+					new Handle(
+							H_INVOKESTATIC,
+							name.classRawName(), "lambda$apply",
+							this.lambdaMethodType.toMethodDescriptorString(),
+							false
+					),
+					Descriptors.asmType(this.listenerMethodType)
+			);
+			mv.visitInsn(ARETURN);
+			mv.visitMaxs(1, 2);
+			mv.visitEnd();
+		}
+
 		byte[] bytes = cw.toByteArray();
 		var lookup = LOOKUP.defineHiddenClass(bytes, true);
-		return lookup.findConstructor(lookup.lookupClass(), MethodType.methodType(void.class, this.type.arrayType()));
+		var constructor = lookup.findConstructor(lookup.lookupClass(), MethodType.methodType(void.class));
+
+		try {
+			return (Function<T[], T>) constructor.invoke();
+		} catch (Throwable e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	// This is used as the replacement implementation of LambdaMetaFactory so that the lambda generated
+	// in the invoker hidden class is actually callable.
+	// This can be package-private because the hidden class is nestmate of this class.
+	// Thanks to https://stackoverflow.com/a/71249339
+	@SuppressWarnings("unused")
+	static CallSite metafactory(
+			MethodHandles.Lookup caller, String interfaceMethodName, MethodType factoryType,
+			MethodType interfaceMethodType, MethodHandle implementation, MethodType dynamicMethodType
+	) throws Throwable {
+		MethodHandle invoker = MethodHandles.exactInvoker(implementation.type());
+		if (factoryType.parameterCount() == 0) {
+			// Non-capturing lambda.
+			factoryType = factoryType.appendParameterTypes(MethodHandle.class);
+			CallSite cs = LambdaMetafactory.metafactory(
+					caller, interfaceMethodName, factoryType, interfaceMethodType, invoker, dynamicMethodType
+			);
+			Object instance = cs.dynamicInvoker()
+					.asType(MethodType.methodType(Object.class, MethodHandle.class))
+					.invokeExact(implementation);
+			return new ConstantCallSite(MethodHandles.constant(factoryType.returnType(), instance));
+		} else {
+			// Capturing.
+			// Should not happen in our case.
+			MethodType lambdaMt = factoryType.insertParameterTypes(0, MethodHandle.class);
+			CallSite cs = LambdaMetafactory.metafactory(
+					caller, interfaceMethodName, lambdaMt, interfaceMethodType, invoker, dynamicMethodType
+			);
+			return new ConstantCallSite(cs.dynamicInvoker().bindTo(implementation));
+		}
 	}
 
 	protected abstract void writeImplementationMethod(MethodVisitor mv, WriterContext context);
@@ -168,12 +234,8 @@ public abstract class DynamicInvokerFactory<T> extends InvokerFactory<T> {
 	}
 
 	protected void preparePreLoop(MethodVisitor mv, WriterContext context) {
-		// Load listeners field into local variable.
-		mv.visitVarInsn(ALOAD, 0);
-		context.writeGetField(mv, "listeners");
-		mv.visitVarInsn(ASTORE, context.listenersVar);
 		// Get array length into local variable.
-		mv.visitVarInsn(ALOAD, context.listenersVar);
+		mv.visitVarInsn(ALOAD, context.listenersVar());
 		mv.visitInsn(ARRAYLENGTH);
 		mv.visitVarInsn(ISTORE, context.listenersLengthVar);
 		// int i = 0;
@@ -189,7 +251,7 @@ public abstract class DynamicInvokerFactory<T> extends InvokerFactory<T> {
 		mv.visitJumpInsn(IF_ICMPGE, context.forEndLabel); // if (i >= listeners.length) goto end;
 		mv.visitLabel(new Label());
 		// Load listeners[i]
-		mv.visitVarInsn(ALOAD, context.listenersVar);
+		mv.visitVarInsn(ALOAD, context.listenersVar());
 		mv.visitVarInsn(ILOAD, context.iVar);
 		mv.visitInsn(AALOAD);
 	}
@@ -200,14 +262,9 @@ public abstract class DynamicInvokerFactory<T> extends InvokerFactory<T> {
 		mv.visitJumpInsn(GOTO, context.forStartLabel);
 	}
 
-	@SuppressWarnings({"unchecked", "ConfusingArgumentToVarargsMethod"})
 	@Override
 	public T apply(T[] listeners) {
-		try {
-			return (T) this.constructor.invoke(listeners);
-		} catch (Throwable e) {
-			throw new RuntimeException(e);
-		}
+		return this.factory.apply(listeners);
 	}
 
 	protected ParamTable getParamTable() {
@@ -230,22 +287,18 @@ public abstract class DynamicInvokerFactory<T> extends InvokerFactory<T> {
 	}
 
 	protected class WriterContext {
-		private final ClassWriter cw;
 		private final String listenerMethodName;
 		private final String typeRawName;
 		private final String implementationInnerClassRawName;
 		private final String implementationFullInnerClassRawName;
 		private final String implementationClassRawName;
 		private final ParamTable paramTable;
-		private final int listenersVar;
 		private final int listenersLengthVar;
 		private final int iVar;
 		private final Label forStartLabel = new Label();
 		private final Label forEndLabel = new Label();
-		private final Map<String, String> fields = new HashMap<>();
 
 		WriterContext(
-				ClassWriter cw,
 				String listenerMethodName,
 				String typeRawName,
 				String implementationInnerClassRawName,
@@ -253,15 +306,13 @@ public abstract class DynamicInvokerFactory<T> extends InvokerFactory<T> {
 				String implementationClassRawName,
 				ParamTable paramTable
 		) {
-			this.cw = cw;
 			this.listenerMethodName = listenerMethodName;
 			this.typeRawName = typeRawName;
 			this.implementationInnerClassRawName = implementationInnerClassRawName;
 			this.implementationFullInnerClassRawName = implementationFullInnerClassRawName;
 			this.implementationClassRawName = implementationClassRawName;
 			this.paramTable = paramTable;
-			this.listenersVar = paramTable.localStart;
-			this.listenersLengthVar = this.listenersVar + 1;
+			this.listenersLengthVar = paramTable.localStart + 1;
 			this.iVar = this.listenersLengthVar + 1;
 		}
 
@@ -290,7 +341,7 @@ public abstract class DynamicInvokerFactory<T> extends InvokerFactory<T> {
 		}
 
 		public int listenersVar() {
-			return this.listenersVar;
+			return 0;
 		}
 
 		public int listenersLengthVar() {
@@ -309,15 +360,6 @@ public abstract class DynamicInvokerFactory<T> extends InvokerFactory<T> {
 			return this.forEndLabel;
 		}
 
-		public void addField(String name, String descriptor) {
-			this.fields.put(name, descriptor);
-			cw.visitField(ACC_PRIVATE | ACC_FINAL, name, descriptor, null, null);
-		}
-
-		public void writeGetField(MethodVisitor mv, String name) {
-			mv.visitFieldInsn(GETFIELD, this.implementationClassRawName, name, this.fields.get(name));
-		}
-
 		public void writeMethodInvoke(MethodVisitor mv) {
 			mv.visitMethodInsn(INVOKEINTERFACE,
 					this.typeRawName,
@@ -327,7 +369,17 @@ public abstract class DynamicInvokerFactory<T> extends InvokerFactory<T> {
 		}
 	}
 
-	public record ParamTable(int localStart, List<LocalEntry> params) {}
+	protected record ParamTable(int localStart, List<LocalEntry> params) {}
 
-	public record LocalEntry(int index, Class<?> type) {}
+	protected record LocalEntry(int index, Class<?> type) {}
+
+	private record ImplementationName(String innerClassName, String outerClassRawName, String outerClassFullRawName) {
+		public String fullInnerClassRawName() {
+			return this.outerClassRawName + "$" + this.innerClassName;
+		}
+
+		public String classRawName() {
+			return this.outerClassFullRawName + "$" + this.innerClassName;
+		}
+	}
 }
