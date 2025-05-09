@@ -272,7 +272,11 @@ sealed abstract class DynamicInvokerFactory<T> extends InvokerFactory<T>
 
 	@Override
 	public T apply(T[] listeners) {
-		return this.factory.apply(listeners);
+		if (listeners.length == 1) {
+			return listeners[0];
+		} else {
+			return this.factory.apply(listeners);
+		}
 	}
 
 	protected ParamTable getParamTable() {

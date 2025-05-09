@@ -31,6 +31,7 @@ import dev.yumi.commons.collections.toposort.SortableNode;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -119,10 +120,12 @@ import java.util.function.Function;
  * @param <T> the type of the listeners, and the type of the invoker used to execute an event
  * @version 1.0.0
  * @since 1.0.0
+ *
+ * @see FilteredEvent
  */
 public sealed class Event<I extends Comparable<? super I>, T>
-		implements InvokableEvent<T>
-		permits FilteredEvent {
+		implements InvokableEvent<T>, ListenableEvent<I, T>
+		permits FilteredEvent, ContextualizedEvent {
 	/**
 	 * The type of listener of this event.
 	 */
@@ -178,54 +181,30 @@ public sealed class Event<I extends Comparable<? super I>, T>
 		return this.type;
 	}
 
-	/**
-	 * {@return the default phase identifier of this event}
-	 */
-	@Contract(pure = true)
+	@Override
 	public @NotNull I defaultPhaseId() {
 		return this.defaultPhaseId;
 	}
 
-	/**
-	 * Registers a listener to this event.
-	 *
-	 * @param listener the listener to register
-	 * @see #register(Comparable, Object)
-	 */
-	public void register(@NotNull T listener) {
-		this.register(this.defaultPhaseId, listener);
-	}
-
-	/**
-	 * Registers a listener to this event for a specific phase.
-	 *
-	 * @param phaseIdentifier the identifier of the phase to register the listener in
-	 * @param listener the listener to register
-	 * @see #register(Object)
-	 */
+	@Override
 	public void register(@NotNull I phaseIdentifier, @NotNull T listener) {
 		Objects.requireNonNull(phaseIdentifier, "Cannot register a listener for a null phase.");
 		Objects.requireNonNull(listener, "Cannot register a null listener.");
 
 		this.lock.lock();
 		try {
-			this.getOrCreatePhase(phaseIdentifier, true).addListener(listener);
-			this.rebuildInvoker(this.listeners.length + 1);
+			this.doRegister(phaseIdentifier, listener);
 		} finally {
 			this.lock.unlock();
 		}
 	}
 
-	/**
-	 * Adds new phase ordering constraints to this event for one phase be executed before the listeners of another phase.
-	 * <p>
-	 * Incompatible ordering constraints such as cycles will lead to inconsistent behavior:
-	 * some constraints will be respected and some will be ignored. If this happens, a warning will be logged.
-	 *
-	 * @param firstPhase the identifier of the phase that should run before the given second phase
-	 * @param secondPhase the identifier of the phase that should run after the given first phase
-	 * @see #register(Comparable, Object) register a listener with a phase
-	 */
+	void doRegister(@NotNull I phaseIdentifier, @NotNull T listener) {
+		this.getOrCreatePhase(phaseIdentifier, true).addListener(listener);
+		this.rebuildInvoker(this.listeners.length + 1);
+	}
+
+	@Override
 	public void addPhaseOrdering(@NotNull I firstPhase, @NotNull I secondPhase) {
 		Objects.requireNonNull(firstPhase, "Tried to order a null phase.");
 		Objects.requireNonNull(secondPhase, "Tried to order a null phase.");
@@ -236,15 +215,19 @@ public sealed class Event<I extends Comparable<? super I>, T>
 
 		this.lock.lock();
 		try {
-			var first = this.getOrCreatePhase(firstPhase, false);
-			var second = this.getOrCreatePhase(secondPhase, false);
-
-			PhaseData.link(first, second);
-			this.sortPhases();
-			this.rebuildInvoker(this.listeners.length);
+			this.doAddPhaseOrdering(firstPhase, secondPhase);
 		} finally {
 			this.lock.unlock();
 		}
+	}
+
+	void doAddPhaseOrdering(@NotNull I firstPhase, @NotNull I secondPhase) {
+		var first = this.getOrCreatePhase(firstPhase, false);
+		var second = this.getOrCreatePhase(secondPhase, false);
+
+		PhaseData.link(first, second);
+		this.sortPhases();
+		this.rebuildInvoker(this.listeners.length);
 	}
 
 	@Override
@@ -332,10 +315,15 @@ public sealed class Event<I extends Comparable<? super I>, T>
 
 		@SuppressWarnings("unchecked")
 		PhaseData(@NotNull I id, @NotNull Class<? super T> listenerType) {
-			Objects.requireNonNull(id);
+			this(
+					Objects.requireNonNull(id),
+					(T[]) Array.newInstance(listenerType, 0)
+			);
+		}
 
+		PhaseData(@NotNull I id, @NotNull T[] listeners) {
 			this.id = id;
-			this.listeners = (T[]) Array.newInstance(listenerType, 0);
+			this.listeners = listeners;
 		}
 
 		@Override
@@ -347,6 +335,16 @@ public sealed class Event<I extends Comparable<? super I>, T>
 			int oldLength = this.listeners.length;
 			this.listeners = Arrays.copyOf(this.listeners, oldLength + 1);
 			this.listeners[oldLength] = listener;
+		}
+
+		@Override
+		public @NotNull @Unmodifiable Set<PhaseData<I, T>> getPreviousNodes() {
+			return super.getPreviousNodes();
+		}
+
+		@Override
+		public @NotNull @Unmodifiable Set<PhaseData<I, T>> getNextNodes() {
+			return super.getNextNodes();
 		}
 	}
 }

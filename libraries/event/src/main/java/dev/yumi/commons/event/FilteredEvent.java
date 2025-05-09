@@ -8,12 +8,14 @@
 
 package dev.yumi.commons.event;
 
+import dev.yumi.commons.function.YumiPredicates;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
@@ -82,18 +84,19 @@ import java.util.function.Predicate;
  * <p>
  * While you could execute a filtered event the same way a regular event is executed,
  * it would only invoke global listeners due to it not being aware of a context.
- * Executing a filtered event is done by first creating a subset of listeners from the event using {@link #forContext(Object)} for a given context,
+ * Executing a filtered event is done by first creating a contextualized event
+ * from the event using {@link #forContext(Object)} for a given context,
  * then calling a method on the event invoker. Where {@code T} is Example, executing a filtered event
  * is done through the following:
  *
  * <pre>{@code
- * InvokerSubset subset = EXAMPLE.forContext(new EventContext("test"));
+ * ContextualizedEvent contextualizedEvent = EXAMPLE.forContext(new EventContext("test"));
  *
  * // Invoke the listeners relevant to the given context.
- * subset.invoker().doSomething();
+ * contextualizedEvent.invoker().doSomething();
  * }</pre>
  * <p>
- * This architecture has advantages only if the subset is stored and only re-created if the context is different.
+ * This architecture has advantages only if the contextualized event is stored and only re-created if the context is different.
  * Otherwise, a regular {@linkplain Event event} would do just fine.
  *
  * @param <I> the phase identifier type
@@ -102,18 +105,24 @@ import java.util.function.Predicate;
  * @author LambdAurora
  * @version 1.0.0
  * @since 1.0.0
+ *
+ * @see Event
  */
 public final class FilteredEvent<I extends Comparable<? super I>, T, C> extends Event<I, T> {
 	/**
-	 * Reference queue for cleared invoker subsets.
+	 * Reference queue for cleared contextualized events.
 	 */
-	private final ReferenceQueue<SubsetInvoker<I, T, C>> queue = new ReferenceQueue<>();
+	private final ReferenceQueue<ContextualizedEvent<I, T, C>> queue = new ReferenceQueue<>();
 	/**
-	 * A cache of currently alive invoker subsets.
+	 * A cache of currently alive contextualized events.
 	 */
-	private final Set<WeakReference<SubsetInvoker<I, T, C>>> subsets = new HashSet<>();
+	private final Set<WeakReference<ContextualizedEvent<I, T, C>>> contextualizedEvents = new HashSet<>();
 
-	FilteredEvent(@NotNull Class<? super T> type, @NotNull I defaultPhaseId, @NotNull Function<T[], T> invokerFactory) {
+	FilteredEvent(
+			@NotNull Class<? super T> type,
+			@NotNull I defaultPhaseId,
+			@NotNull Function<T[], T> invokerFactory
+	) {
 		super(type, defaultPhaseId, invokerFactory);
 	}
 
@@ -149,6 +158,7 @@ public final class FilteredEvent<I extends Comparable<? super I>, T, C> extends 
 		try {
 			this.getOrCreatePhase(phaseIdentifier, true).addListener(new Listener<>(listener, filter));
 			this.rebuildInvoker(this.listeners.length);
+			this.notifyContextualizedOfRegistration(phaseIdentifier, listener, filter);
 		} finally {
 			this.lock.unlock();
 		}
@@ -162,18 +172,62 @@ public final class FilteredEvent<I extends Comparable<? super I>, T, C> extends 
 	 * @param context the current context
 	 * @return an invoker for a subset of listeners
 	 */
-	public SubsetInvoker<I, T, C> forContext(C context) {
-		var subset = new SubsetInvoker<>(this, context);
+	public ContextualizedEvent<I, T, C> forContext(@NotNull C context) {
+		var subset = new ContextualizedEvent<>(this, context);
 
 		this.lock.lock();
 		try {
 			this.purge();
-			this.subsets.add(new WeakReference<>(subset, this.queue));
+
+			for (var ref : this.contextualizedEvents) {
+				var knownSubset = ref.get();
+
+				if (knownSubset == context) {
+					return knownSubset;
+				}
+			}
+
+			this.contextualizedEvents.add(new WeakReference<>(subset, this.queue));
 		} finally {
 			this.lock.unlock();
 		}
 
 		return subset;
+	}
+
+	@Override
+	void doRegister(@NotNull I phaseIdentifier, @NotNull T listener) {
+		super.doRegister(phaseIdentifier, listener);
+		this.notifyContextualizedOfRegistration(phaseIdentifier, listener, YumiPredicates.alwaysTrue());
+	}
+
+	private void notifyContextualizedOfRegistration(
+			@NotNull I phaseIdentifier, @NotNull T listener, @NotNull Predicate<C> selector
+	) {
+		this.purge();
+
+		for (var subset : this.contextualizedEvents) {
+			var value = subset.get();
+
+			if (value != null) {
+				value.registerFromParent(phaseIdentifier, listener, selector);
+			}
+		}
+	}
+
+	@Override
+	void doAddPhaseOrdering(@NotNull I firstPhase, @NotNull I secondPhase) {
+		super.doAddPhaseOrdering(firstPhase, secondPhase);
+
+		this.purge();
+
+		for (var subset : this.contextualizedEvents) {
+			var value = subset.get();
+
+			if (value != null) {
+				value.addPhaseOrdering(firstPhase, secondPhase);
+			}
+		}
 	}
 
 	// This may be marked as redundant in some IDEs, but javac is clear: there is an unchecked warning here.
@@ -200,22 +254,12 @@ public final class FilteredEvent<I extends Comparable<? super I>, T, C> extends 
 	@Override
 	void rebuildInvoker(int newLength) {
 		super.rebuildInvoker(newLength);
-
-		this.purge();
-
-		for (var subset : this.subsets) {
-			var value = subset.get();
-
-			if (value != null) {
-				value.rebuildInvoker();
-			}
-		}
 	}
 
 	private void purge() {
 		for (var ref = this.queue.poll(); ref != null; ref = this.queue.poll()) {
 			//noinspection SuspiciousMethodCalls
-			this.subsets.remove(ref);
+			this.contextualizedEvents.remove(ref);
 		}
 	}
 
@@ -239,6 +283,17 @@ public final class FilteredEvent<I extends Comparable<? super I>, T, C> extends 
 			int oldLength = this.listenersData.length;
 			this.listenersData = Arrays.copyOf(this.listenersData, oldLength + 1);
 			this.listenersData[oldLength] = listener;
+		}
+
+		@SuppressWarnings({"unchecked"})
+		Event.PhaseData<I, T> copyFor(@NotNull C context) {
+			return new PhaseData<>(
+					this.getId(),
+					Arrays.stream(this.listenersData)
+							.filter(listener -> listener.shouldListen(context))
+							.map(Listener::listener)
+							.toArray(length -> (T[]) Array.newInstance(this.listeners.getClass().componentType(), length))
+			);
 		}
 	}
 

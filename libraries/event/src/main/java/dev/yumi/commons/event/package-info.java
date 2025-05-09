@@ -18,6 +18,8 @@
  * @see dev.yumi.commons.event.Event
  * @see dev.yumi.commons.event.FilteredEvent
  * @see dev.yumi.commons.event.EventManager
+ * @see dev.yumi.commons.event.InvokableEvent
+ * @see dev.yumi.commons.event.ListenableEvent
  */
 
 package dev.yumi.commons.event;

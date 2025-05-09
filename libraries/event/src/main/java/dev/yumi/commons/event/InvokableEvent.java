@@ -18,6 +18,9 @@ import org.jetbrains.annotations.NotNull;
  * @author LambdAurora
  * @version 1.0.0
  * @since 1.0.0
+ *
+ * @see Event
+ * @see FilteredEvent
  */
 public interface InvokableEvent<T> {
 	/**

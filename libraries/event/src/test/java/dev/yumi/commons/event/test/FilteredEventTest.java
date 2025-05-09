@@ -8,7 +8,9 @@
 
 package dev.yumi.commons.event.test;
 
+import dev.yumi.commons.Either;
 import dev.yumi.commons.collections.YumiCollections;
+import dev.yumi.commons.event.ContextualizedEvent;
 import dev.yumi.commons.event.EventManager;
 import dev.yumi.commons.event.FilteredEvent;
 import org.junit.jupiter.api.Test;
@@ -102,6 +104,109 @@ public class FilteredEventTest {
 					tester.reset();
 
 					event.forContext("contextualized").invoker().call("Hello world!");
+					tester.assertCalled(7);
+
+					tester.reset();
+
+					event.forContext("some other context").invoker().call("Hello world!");
+					tester.assertCalled(6);
+				});
+	}
+
+	@Test
+	public void testContextualized() {
+		var tester = new ExecutionTester();
+		var event = EVENTS.createFiltered(TestCallback.class, String.class);
+		var filtered = event.forContext("test context");
+
+		event.register(text -> tester.assertOrder(0));
+		event.register(text -> tester.assertOrder(1));
+		event.register(text -> tester.assertOrder(2));
+		event.register(text -> tester.assertOrder(3), context -> context.equals("test context"));
+
+		filtered.register(text -> tester.assertOrder(4));
+
+		// Without filtering.
+		event.invoker().call("3");
+		tester.assertCalled(3);
+
+		tester.reset();
+
+		filtered.invoker().call("5");
+		tester.assertCalled(5);
+
+		tester.reset();
+
+		filtered = event.forContext("other context");
+		filtered.invoker().call("3 again");
+		tester.assertCalled(3);
+	}
+
+	@Test
+	public void testContextualizedPhases() {
+		var tester = new ExecutionTester();
+
+		record Listener(int order, Either<Predicate<String>, Boolean> selector) {
+			void register(
+					String phase, ExecutionTester tester,
+					FilteredEvent<String, TestCallback, String> event,
+					ContextualizedEvent<String, TestCallback, String> contextualized
+			) {
+				this.selector.apply(selector -> {
+					event.register(phase, text -> tester.assertOrder(this.order), selector);
+					event.register(phase, text -> tester.skip(), selector.negate());
+				}, listenContextualized -> {
+					if (listenContextualized) {
+						contextualized.register(phase, text -> tester.assertOrder(this.order));
+						event.register(phase, text -> tester.skip(), context -> !context.equals(contextualized.context()));
+					} else {
+						event.register(phase, text -> tester.assertOrder(this.order));
+					}
+				});
+			}
+		}
+
+		record Entry(String phase, List<Listener> listeners) {
+			Entry(String phase, Listener listener) {
+				this(phase, List.of(listener));
+			}
+		}
+
+		YumiCollections.forAllPermutations(
+				List.of(
+						new Entry("very_early", new Listener(0, Either.right(false))),
+						new Entry("early", new Listener(1, Either.right(false))),
+						new Entry("default", List.of(
+								new Listener(2, Either.left(context -> context.equals("contextualized"))),
+								new Listener(3, Either.right(false))
+						)),
+						new Entry("late", new Listener(4, Either.right(true))),
+						new Entry("very_late", List.of(
+								new Listener(5, Either.right(false)),
+								new Listener(6, Either.left(context -> context.equals("some other context"))),
+								new Listener(7, Either.right(false))
+						))
+				),
+				entries -> {
+					var event = EVENTS.createFilteredWithPhases(TestCallback.class, String.class,
+							"very_early", "early", "default", "late", "very_late"
+					);
+					var contextualized = event.forContext("contextualized");
+
+					tester.reset();
+					for (var entry : entries) {
+						for (var listener : entry.listeners) {
+							listener.register(entry.phase, tester, event, contextualized);
+						}
+					}
+
+					tester.useStrictOrder(false);
+					event.invoker().call("Hello world!");
+					tester.assertCalled(5);
+
+					tester.reset();
+
+					contextualized.invoker().call("Hello world!");
 					tester.assertCalled(7);
 
 					tester.reset();

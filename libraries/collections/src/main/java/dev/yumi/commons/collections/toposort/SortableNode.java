@@ -27,9 +27,10 @@ package dev.yumi.commons.collections.toposort;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Represents a graph node that can be sorted using topological sorting.
@@ -42,8 +43,8 @@ import java.util.List;
  * @since 1.0.0
  */
 public abstract class SortableNode<I, N extends SortableNode<I, N>> {
-	final List<N> nextNodes = new ArrayList<>();
-	final List<N> previousNodes = new ArrayList<>();
+	final Set<N> nextNodes = new HashSet<>();
+	final Set<N> previousNodes = new HashSet<>();
 	boolean visited = false;
 
 	/**
@@ -51,6 +52,20 @@ public abstract class SortableNode<I, N extends SortableNode<I, N>> {
 	 */
 	@Contract(pure = true)
 	public abstract @NotNull I getId();
+
+	/**
+	 * {@return a set of the previous nodes}
+	 */
+	protected @NotNull @Unmodifiable Set<N> getPreviousNodes() {
+		return Set.copyOf(this.previousNodes);
+	}
+
+	/**
+	 * {@return a set of the next nodes}
+	 */
+	protected @NotNull @Unmodifiable Set<N> getNextNodes() {
+		return Set.copyOf(this.nextNodes);
+	}
 
 	/**
 	 * Links two given nodes together.
