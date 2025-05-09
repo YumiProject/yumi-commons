@@ -13,13 +13,12 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Array;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -110,13 +109,9 @@ import java.util.function.Predicate;
  */
 public final class FilteredEvent<I extends Comparable<? super I>, T, C> extends Event<I, T> {
 	/**
-	 * Reference queue for cleared contextualized events.
-	 */
-	private final ReferenceQueue<ContextualizedEvent<I, T, C>> queue = new ReferenceQueue<>();
-	/**
 	 * A cache of currently alive contextualized events.
 	 */
-	private final Set<WeakReference<ContextualizedEvent<I, T, C>>> contextualizedEvents = new HashSet<>();
+	private final Map<C, WeakReference<ContextualizedEvent<I, T, C>>> contextualizedEvents = new WeakHashMap<>();
 
 	FilteredEvent(
 			@NotNull Class<? super T> type,
@@ -165,34 +160,58 @@ public final class FilteredEvent<I extends Comparable<? super I>, T, C> extends 
 	}
 
 	/**
-	 * Creates an invoker for a subset of listeners that matches the given context.
+	 * Creates a contextualized event of the given context.
 	 * <p>
-	 * Each subset will be dynamically updated if new listeners which match the given context are registered to this event.
+	 * This may return an existing contextualized event if one was already associated with the given context.
+	 * <p>
+	 * Each contextualized events will be dynamically updated
+	 * if new listeners which match the given context are registered to this event.
 	 *
 	 * @param context the current context
 	 * @return an invoker for a subset of listeners
+	 * @see #forContext(Object, boolean)
 	 */
 	public ContextualizedEvent<I, T, C> forContext(@NotNull C context) {
-		var subset = new ContextualizedEvent<>(this, context);
+		return this.forContext(context, false);
+	}
 
+	/**
+	 * Creates a contextualized event of the given context.
+	 * <p>
+	 * Each contextualized events will be dynamically updated
+	 * if new listeners which match the given context are registered to this event.
+	 *
+	 * @param context the current context
+	 * @param replace {@code true} if an existing contextualized event of the same context should be replaced,
+	 * or {@code false} otherwise
+	 * @return an invoker for a subset of listeners
+	 * @see #forContext(Object)
+	 */
+	public ContextualizedEvent<I, T, C> forContext(@NotNull C context, boolean replace) {
 		this.lock.lock();
 		try {
-			this.purge();
+			if (replace) {
+				var contextualized = new ContextualizedEvent<>(this, context);
+				this.contextualizedEvents.put(context, new WeakReference<>(contextualized));
+				return contextualized;
+			} else {
+				var existing = this.contextualizedEvents.get(context);
 
-			for (var ref : this.contextualizedEvents) {
-				var knownSubset = ref.get();
+				if (existing != null) {
+					var existingRef = existing.get();
 
-				if (knownSubset == context) {
-					return knownSubset;
+					if (existingRef != null) {
+						return existingRef;
+					}
 				}
-			}
 
-			this.contextualizedEvents.add(new WeakReference<>(subset, this.queue));
+				var contextualized = new ContextualizedEvent<>(this, context);
+				this.contextualizedEvents.put(context, new WeakReference<>(contextualized));
+				return contextualized;
+			}
 		} finally {
 			this.lock.unlock();
 		}
-
-		return subset;
 	}
 
 	@Override
@@ -204,10 +223,8 @@ public final class FilteredEvent<I extends Comparable<? super I>, T, C> extends 
 	private void notifyContextualizedOfRegistration(
 			@NotNull I phaseIdentifier, @NotNull T listener, @NotNull Predicate<C> selector
 	) {
-		this.purge();
-
-		for (var subset : this.contextualizedEvents) {
-			var value = subset.get();
+		for (var contextualized : this.contextualizedEvents.values()) {
+			var value = contextualized.get();
 
 			if (value != null) {
 				value.registerFromParent(phaseIdentifier, listener, selector);
@@ -219,10 +236,8 @@ public final class FilteredEvent<I extends Comparable<? super I>, T, C> extends 
 	void doAddPhaseOrdering(@NotNull I firstPhase, @NotNull I secondPhase) {
 		super.doAddPhaseOrdering(firstPhase, secondPhase);
 
-		this.purge();
-
-		for (var subset : this.contextualizedEvents) {
-			var value = subset.get();
+		for (var contextualized : this.contextualizedEvents.values()) {
+			var value = contextualized.get();
 
 			if (value != null) {
 				value.addPhaseOrdering(firstPhase, secondPhase);
@@ -254,13 +269,6 @@ public final class FilteredEvent<I extends Comparable<? super I>, T, C> extends 
 	@Override
 	void rebuildInvoker(int newLength) {
 		super.rebuildInvoker(newLength);
-	}
-
-	private void purge() {
-		for (var ref = this.queue.poll(); ref != null; ref = this.queue.poll()) {
-			//noinspection SuspiciousMethodCalls
-			this.contextualizedEvents.remove(ref);
-		}
 	}
 
 	@ApiStatus.Internal
