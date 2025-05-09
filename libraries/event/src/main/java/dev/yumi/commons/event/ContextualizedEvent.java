@@ -30,6 +30,7 @@ public final class ContextualizedEvent<I extends Comparable<? super I>, T, C> ex
 	 */
 	private final C context;
 
+	@SuppressWarnings({"unchecked", "RedundantSuppression"})
 	public ContextualizedEvent(FilteredEvent<I, T, C> parent, C context) {
 		super(parent.type(), parent.defaultPhaseId(), parent.invokerFactory);
 		this.context = context;
