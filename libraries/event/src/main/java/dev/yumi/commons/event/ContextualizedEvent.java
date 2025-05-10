@@ -26,7 +26,7 @@ import java.util.function.Predicate;
  */
 public final class ContextualizedEvent<I extends Comparable<? super I>, T, C> extends Event<I, T> {
 	/**
-	 * The context relevant to this subset of listeners.
+	 * The context relevant to this event and listeners.
 	 */
 	private final C context;
 

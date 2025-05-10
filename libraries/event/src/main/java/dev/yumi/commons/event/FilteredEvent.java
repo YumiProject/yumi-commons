@@ -168,7 +168,7 @@ public final class FilteredEvent<I extends Comparable<? super I>, T, C> extends 
 	 * if new listeners which match the given context are registered to this event.
 	 *
 	 * @param context the current context
-	 * @return an invoker for a subset of listeners
+	 * @return the contextualized event for the given context
 	 * @see #forContext(Object, boolean)
 	 */
 	public ContextualizedEvent<I, T, C> forContext(@NotNull C context) {
@@ -184,7 +184,7 @@ public final class FilteredEvent<I extends Comparable<? super I>, T, C> extends 
 	 * @param context the current context
 	 * @param replace {@code true} if an existing contextualized event of the same context should be replaced,
 	 * or {@code false} otherwise
-	 * @return an invoker for a subset of listeners
+	 * @return the contextualized event for the given context
 	 * @see #forContext(Object)
 	 */
 	public ContextualizedEvent<I, T, C> forContext(@NotNull C context, boolean replace) {
