@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
  * @see EventManager#getCreationEvent()
  * @since 1.0.0
  */
+@FunctionalInterface
 public interface EventCreation<I extends Comparable<? super I>> {
 	/**
 	 * Called when a new event is created using the given event manager.

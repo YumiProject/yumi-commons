@@ -8,6 +8,7 @@
 
 package dev.yumi.commons.event.test;
 
+@FunctionalInterface
 public interface TestCallback {
 	void call(String text);
 }

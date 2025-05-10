@@ -10,6 +10,7 @@ package dev.yumi.commons.event.benchmark;
 
 import org.openjdk.jmh.infra.Blackhole;
 
+@FunctionalInterface
 public interface JmhTestCallback {
 	void call(Blackhole blackhole, String dummy);
 }

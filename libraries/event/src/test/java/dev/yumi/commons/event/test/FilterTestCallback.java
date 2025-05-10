@@ -8,6 +8,7 @@
 
 package dev.yumi.commons.event.test;
 
+@FunctionalInterface
 public interface FilterTestCallback {
 	boolean filter(String text);
 }

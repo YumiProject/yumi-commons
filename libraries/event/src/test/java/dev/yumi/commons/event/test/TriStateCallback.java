@@ -10,6 +10,7 @@ package dev.yumi.commons.event.test;
 
 import dev.yumi.commons.TriState;
 
+@FunctionalInterface
 public interface TriStateCallback {
 	TriState call(String text);
 }
