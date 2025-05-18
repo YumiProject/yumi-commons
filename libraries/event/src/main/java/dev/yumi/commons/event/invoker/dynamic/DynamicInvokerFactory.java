@@ -49,7 +49,7 @@ sealed abstract class DynamicInvokerFactory<T> extends InvokerFactory<T>
 	protected DynamicInvokerFactory(@NotNull Class<? super T> type, @NotNull Method listenerMethod) {
 		super(type);
 		this.checkMethod(listenerMethod);
-		this.ensureModuleConstraints();
+		this.ensureModuleConstraints(listenerMethod);
 
 		try {
 			this.listenerMethodType = MethodType.methodType(listenerMethod.getReturnType(), listenerMethod.getParameterTypes());
@@ -83,10 +83,24 @@ sealed abstract class DynamicInvokerFactory<T> extends InvokerFactory<T>
 	@Contract(pure = true)
 	protected abstract void checkMethod(@NotNull Method method);
 
-	private void ensureModuleConstraints() {
+	private void ensureModuleConstraints(@NotNull Method method) {
 		// Since we are defining a class that implements type at runtime,
-		// we need to ensure we can actually read the class we implement.
+		// we need to ensure we can actually read the class we implement...
 		MODULE.addReads(this.type.getModule());
+		// as well as the classes we manipulate in the listener method.
+		ensureModuleConstraintForType(method.getReturnType());
+		for (var paramType : method.getParameterTypes()) {
+			ensureModuleConstraintForType(paramType);
+		}
+	}
+
+	private static void ensureModuleConstraintForType(@NotNull Class<?> type) {
+		if (type.isPrimitive()) return;
+		if (type.isArray()) {
+			ensureModuleConstraintForType(type.componentType());
+			return;
+		}
+		MODULE.addReads(type.getModule());
 	}
 
 	@SuppressWarnings("unchecked")
