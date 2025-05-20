@@ -10,8 +10,7 @@ package dev.yumi.commons.collections;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -23,6 +22,58 @@ import java.util.function.Consumer;
 public final class YumiCollections {
 	private YumiCollections() {
 		throw new UnsupportedOperationException("YumiCollections only contains static definitions.");
+	}
+
+	/**
+	 * Concatenates the given lists into a new list.
+	 *
+	 * @param first the first list to concatenate
+	 * @param second the second list to concatenate
+	 * @param more the other lists to concatenate if present
+	 * @return the result of the concatenation of the given lists
+	 * @param <T> the type of the lists
+	 */
+	@SafeVarargs
+	public static <T> @NotNull List<T> concat(
+			@NotNull List<? extends T> first,
+			@NotNull List<? extends T> second,
+			@NotNull List<? extends T>... more
+	) {
+		var list = new ArrayList<T>(
+				first.size() + second.size() + Arrays.stream(more).mapToInt(Collection::size).sum()
+		);
+		list.addAll(first);
+		list.addAll(second);
+		for (var other : more) {
+			list.addAll(other);
+		}
+		return list;
+	}
+
+	/**
+	 * Concatenates the given sets into a new set.
+	 *
+	 * @param first the first set to concatenate
+	 * @param second the second set to concatenate
+	 * @param more the other sets to concatenate if present
+	 * @return the result of the concatenation of the given sets
+	 * @param <T> the type of the sets
+	 */
+	@SafeVarargs
+	public static <T> @NotNull Set<T> concat(
+			@NotNull Set<? extends T> first,
+			@NotNull Set<? extends T> second,
+			@NotNull Set<? extends T>... more
+	) {
+		var set = new HashSet<T>(
+				first.size() + second.size() + Arrays.stream(more).mapToInt(Collection::size).sum()
+		);
+		set.addAll(first);
+		set.addAll(second);
+		for (var other : more) {
+			set.addAll(other);
+		}
+		return set;
 	}
 
 	/**
