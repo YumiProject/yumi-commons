@@ -24,6 +24,9 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import static java.lang.classfile.ClassFile.*;
+import static java.lang.classfile.ClassFile.ACC_PRIVATE;
+import static java.lang.classfile.ClassFile.ACC_STATIC;
 import static java.lang.constant.ConstantDescs.*;
 
 /**
@@ -127,10 +130,10 @@ sealed abstract class DynamicInvokerFactory<T> extends InvokerFactory<T>
 						.withFlags(AccessFlag.PUBLIC, AccessFlag.FINAL, AccessFlag.SUPER)
 						.withInterfaceSymbols(CD_FUNCTION)
 						// Write implementation class constructor
-						.withMethodBody(INIT_NAME, MTD_void, ClassFile.ACC_PUBLIC,
+						.withMethodBody(INIT_NAME, MTD_void, ACC_PUBLIC,
 								mb -> mb.aload(0).invokespecial(CD_Object, INIT_NAME, MTD_void).return_())
 						// Write Function apply bridge
-						.withMethodBody("apply", MethodTypeDesc.of(CD_Object, CD_Object), ClassFile.ACC_PUBLIC | ClassFile.ACC_SYNTHETIC | ClassFile.ACC_BRIDGE,
+						.withMethodBody("apply", MethodTypeDesc.of(CD_Object, CD_Object), ACC_PUBLIC | ACC_SYNTHETIC | ACC_BRIDGE,
 								mb -> mb
 										.aload(0)
 										.aload(1)
@@ -138,19 +141,25 @@ sealed abstract class DynamicInvokerFactory<T> extends InvokerFactory<T>
 										.invokevirtual(classDesc, "apply", factoryDescriptor)
 										.areturn()
 						)
-						.withMethodBody("apply", factoryDescriptor, ClassFile.ACC_PUBLIC,
+						.withMethodBody("apply", factoryDescriptor, ACC_PUBLIC,
 								mb -> mb
 										.aload(1)
 										.invokedynamic(DynamicCallSiteDesc.of(
-												MethodHandleDesc.ofMethod(DirectMethodHandleDesc.Kind.STATIC, CD_SELF, "metafactory", METAFACTORY_METHOD_DESC),
+												MethodHandleDesc.ofMethod(
+														DirectMethodHandleDesc.Kind.STATIC,
+														CD_SELF, "metafactory", METAFACTORY_METHOD_DESC
+												),
 												listenerMethodName, factoryDescriptor,
 												this.listenerMethodTypeDesc,
-												MethodHandleDesc.ofMethod(DirectMethodHandleDesc.Kind.STATIC, classDesc, "lambda$apply", this.lambdaMethodType),
+												MethodHandleDesc.ofMethod(
+														DirectMethodHandleDesc.Kind.STATIC,
+														classDesc, "lambda$apply", this.lambdaMethodType
+												),
 												this.listenerMethodTypeDesc
 										))
 										.areturn()
 						)
-						.withMethodBody("lambda$apply", this.lambdaMethodType, ClassFile.ACC_PRIVATE | ClassFile.ACC_STATIC | ClassFile.ACC_SYNTHETIC,
+						.withMethodBody("lambda$apply", this.lambdaMethodType, ACC_PRIVATE | ACC_STATIC | ACC_SYNTHETIC,
 								mb -> {
 									var context = new WriterContext(
 											mb,
