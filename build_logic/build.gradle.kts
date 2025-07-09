@@ -5,7 +5,7 @@ plugins {
 	`kotlin-dsl`
 }
 
-val javaVersion = 17
+val javaVersion = 21
 
 repositories {
 	mavenLocal()

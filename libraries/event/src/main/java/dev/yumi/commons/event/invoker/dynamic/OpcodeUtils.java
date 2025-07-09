@@ -10,7 +10,7 @@ package dev.yumi.commons.event.invoker.dynamic;
 
 import org.jetbrains.annotations.ApiStatus;
 
-import static org.objectweb.asm.Opcodes.*;
+import java.lang.classfile.CodeBuilder;
 
 @ApiStatus.Internal
 final class OpcodeUtils {
@@ -18,27 +18,17 @@ final class OpcodeUtils {
 		throw new UnsupportedOperationException("OpcodeUtils only contains static definition.");
 	}
 
-	public static int getLoadOpcodeFromType(Class<?> clazz) {
+	public static void doLoadFromType(CodeBuilder mb, Class<?> clazz, int index) {
 		if (clazz == int.class || clazz == boolean.class || clazz == byte.class || clazz == char.class || clazz == short.class) {
-			return ILOAD;
+			mb.iload(index);
 		} else if (clazz == long.class) {
-			return LLOAD;
+			mb.lload(index);
 		} else if (clazz == float.class) {
-			return FLOAD;
+			mb.fload(index);
 		} else if (clazz == double.class) {
-			return DLOAD;
+			mb.dload(index);
 		} else {
-			return ALOAD;
+			mb.aload(index);
 		}
-	}
-
-	public static int getLoadOpcodeFromType(String type) {
-		return switch (type) {
-			case Descriptors.BOOLEAN, Descriptors.CHAR, Descriptors.BYTE, Descriptors.SHORT, Descriptors.INT -> ILOAD;
-			case Descriptors.LONG -> LLOAD;
-			case Descriptors.FLOAT -> FLOAD;
-			case Descriptors.DOUBLE -> DLOAD;
-			default -> ALOAD;
-		};
 	}
 }

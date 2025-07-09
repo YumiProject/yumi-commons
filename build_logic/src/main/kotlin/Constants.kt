@@ -3,7 +3,7 @@ data class Developer(val name: String, val email: String)
 object Constants {
 	const val GROUP = "dev.yumi.commons"
 	const val VERSION = "1.0.0-alpha.12"
-	const val JAVA_VERSION = 17
+	const val JAVA_VERSION = 24
 
 	const val PROJECT_NAME = "Yumi Commons"
 	const val PROJECT_URL = "https://github.com/YumiProject/yumi-commons"

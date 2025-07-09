@@ -10,11 +10,8 @@ package dev.yumi.commons.event.invoker.dynamic;
 
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
-import org.objectweb.asm.MethodVisitor;
 
 import java.lang.reflect.Method;
-
-import static org.objectweb.asm.Opcodes.RETURN;
 
 /**
  * Represents a factory of an invoker implementation of an {@link dev.yumi.commons.event.Event} given an array of listeners
@@ -43,11 +40,8 @@ public final class SequenceInvokerFactory<T> extends DynamicInvokerFactory<T> {
 	}
 
 	@Override
-	protected void writeImplementationMethod(MethodVisitor mv, WriterContext context) {
-		this.writeMethodStart(mv, context);
-		this.writeIncrement(mv, context);
-
-		mv.visitLabel(context.getForEndLabel());
-		mv.visitInsn(RETURN);
+	protected void writeImplementationMethod(WriterContext context) {
+		context.writeMethod(_ -> {});
+		context.codeBuilder().return_();
 	}
 }
