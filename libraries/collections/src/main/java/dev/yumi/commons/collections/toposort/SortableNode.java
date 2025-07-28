@@ -25,6 +25,7 @@
 
 package dev.yumi.commons.collections.toposort;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
@@ -61,10 +62,30 @@ public abstract class SortableNode<I, N extends SortableNode<I, N>> {
 	}
 
 	/**
+	 * Adds a previous node before this one.
+	 *
+	 * @param node the previous node before this one
+	 */
+	@ApiStatus.OverrideOnly
+	protected void addPreviousNode(@NotNull N node) {
+		this.previousNodes.add(node);
+	}
+
+	/**
 	 * {@return a set of the next nodes}
 	 */
 	protected @NotNull @Unmodifiable Set<N> getNextNodes() {
 		return Set.copyOf(this.nextNodes);
+	}
+
+	/**
+	 * Adds a next node after this one.
+	 *
+	 * @param node the next node after this one
+	 */
+	@ApiStatus.OverrideOnly
+	protected void addNextNode(@NotNull N node) {
+		this.nextNodes.add(node);
 	}
 
 	/**
@@ -79,7 +100,7 @@ public abstract class SortableNode<I, N extends SortableNode<I, N>> {
 			throw new IllegalArgumentException("Cannot link a node to itself!");
 		}
 
-		first.nextNodes.add(second);
-		second.previousNodes.add(first);
+		first.addNextNode(second);
+		second.addPreviousNode(first);
 	}
 }
