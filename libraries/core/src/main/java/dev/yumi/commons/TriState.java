@@ -116,6 +116,130 @@ public enum TriState {
 	};
 
 	/**
+	 * {@return the value of an "and" operation on this and the given operands}
+	 *
+	 * <table>
+	 * 	<caption>Truth table of TriState's "and" operator</caption>
+	 * 	<tr><th>A</th><th>B</th><th>Result</th></tr>
+	 * 	<tr><td>{@link #FALSE}</td><td>{@link #FALSE}</td><td>{@link #FALSE}</td></tr>
+	 * 	<tr><td>{@link #TRUE}</td><td>{@link #FALSE}</td><td>{@link #FALSE}</td></tr>
+	 * 	<tr><td>{@link #FALSE}</td><td>{@link #TRUE}</td><td>{@link #FALSE}</td></tr>
+	 * 	<tr><td>{@link #TRUE}</td><td>{@link #TRUE}</td><td>{@link #TRUE}</td></tr>
+	 * 	<tr><td>{@link #DEFAULT}</td><td>{@link #DEFAULT}</td><td>{@link #DEFAULT}</td></tr>
+	 * 	<tr><td>{@link #FALSE}</td><td>{@link #DEFAULT}</td><td>{@link #FALSE}</td></tr>
+	 * 	<tr><td>{@link #TRUE}</td><td>{@link #DEFAULT}</td><td>{@link #DEFAULT}</td></tr>
+	 * 	<tr><td>{@link #DEFAULT}</td><td>{@link #FALSE}</td><td>{@link #FALSE}</td></tr>
+	 * 	<tr><td>{@link #DEFAULT}</td><td>{@link #TRUE}</td><td>{@link #DEFAULT}</td></tr>
+	 * </table>
+	 *
+	 * @param other the other operand
+	 * @see #and(Supplier)
+	 */
+	@Contract(pure = true)
+	public @NotNull TriState and(@NotNull TriState other) {
+		return switch (this) {
+			case TRUE -> other;
+			case FALSE -> this;
+			default -> other == TRUE ? DEFAULT : other;
+		};
+	}
+
+	/**
+	 * {@return the value of an "and" operation on this and the given operands}
+	 *
+	 * <table>
+	 * 	<caption>Truth table of TriState's "and" operator</caption>
+	 * 	<tr><th>A</th><th>B</th><th>Result</th></tr>
+	 * 	<tr><td>{@link #FALSE}</td><td>{@link #FALSE}</td><td>{@link #FALSE}</td></tr>
+	 * 	<tr><td>{@link #TRUE}</td><td>{@link #FALSE}</td><td>{@link #FALSE}</td></tr>
+	 * 	<tr><td>{@link #FALSE}</td><td>{@link #TRUE}</td><td>{@link #FALSE}</td></tr>
+	 * 	<tr><td>{@link #TRUE}</td><td>{@link #TRUE}</td><td>{@link #TRUE}</td></tr>
+	 * 	<tr><td>{@link #DEFAULT}</td><td>{@link #DEFAULT}</td><td>{@link #DEFAULT}</td></tr>
+	 * 	<tr><td>{@link #FALSE}</td><td>{@link #DEFAULT}</td><td>{@link #FALSE}</td></tr>
+	 * 	<tr><td>{@link #TRUE}</td><td>{@link #DEFAULT}</td><td>{@link #DEFAULT}</td></tr>
+	 * 	<tr><td>{@link #DEFAULT}</td><td>{@link #FALSE}</td><td>{@link #FALSE}</td></tr>
+	 * 	<tr><td>{@link #DEFAULT}</td><td>{@link #TRUE}</td><td>{@link #DEFAULT}</td></tr>
+	 * </table>
+	 *
+	 * @param other the other operand, which is lazily evaluated
+	 * @see #and(TriState)
+	 */
+	@Contract(pure = true)
+	public @NotNull TriState and(@NotNull Supplier<TriState> other) {
+		return switch (this) {
+			case TRUE -> other.get();
+			case FALSE -> this;
+			default -> {
+				var rightSide = other.get();
+				if (rightSide == TRUE) yield DEFAULT;
+				else yield rightSide;
+			}
+		};
+	}
+
+	/**
+	 * {@return the value of an "or" operation on this and the given operands}
+	 *
+	 * <table>
+	 * 	<caption>Truth table of TriState's "or" operator</caption>
+	 * 	<tr><th>A</th><th>B</th><th>Result</th></tr>
+	 * 	<tr><td>{@link #FALSE}</td><td>{@link #FALSE}</td><td>{@link #FALSE}</td></tr>
+	 * 	<tr><td>{@link #TRUE}</td><td>{@link #FALSE}</td><td>{@link #TRUE}</td></tr>
+	 * 	<tr><td>{@link #FALSE}</td><td>{@link #TRUE}</td><td>{@link #TRUE}</td></tr>
+	 * 	<tr><td>{@link #TRUE}</td><td>{@link #TRUE}</td><td>{@link #TRUE}</td></tr>
+	 * 	<tr><td>{@link #DEFAULT}</td><td>{@link #DEFAULT}</td><td>{@link #DEFAULT}</td></tr>
+	 * 	<tr><td>{@link #FALSE}</td><td>{@link #DEFAULT}</td><td>{@link #DEFAULT}</td></tr>
+	 * 	<tr><td>{@link #TRUE}</td><td>{@link #DEFAULT}</td><td>{@link #TRUE}</td></tr>
+	 * 	<tr><td>{@link #DEFAULT}</td><td>{@link #FALSE}</td><td>{@link #DEFAULT}</td></tr>
+	 * 	<tr><td>{@link #DEFAULT}</td><td>{@link #TRUE}</td><td>{@link #TRUE}</td></tr>
+	 * </table>
+	 *
+	 * @param other the other operand
+	 * @see #or(Supplier)
+	 */
+	@Contract(pure = true)
+	public @NotNull TriState or(@NotNull TriState other) {
+		return switch (this) {
+			case TRUE -> this;
+			case FALSE -> other;
+			default -> other == FALSE ? this : other;
+		};
+	}
+
+	/**
+	 * {@return the value of an "or" operation on this and the given operands}
+	 *
+	 * <table>
+	 * 	<caption>Truth table of TriState's "or" operator</caption>
+	 * 	<tr><th>A</th><th>B</th><th>Result</th></tr>
+	 * 	<tr><td>{@link #FALSE}</td><td>{@link #FALSE}</td><td>{@link #FALSE}</td></tr>
+	 * 	<tr><td>{@link #TRUE}</td><td>{@link #FALSE}</td><td>{@link #TRUE}</td></tr>
+	 * 	<tr><td>{@link #FALSE}</td><td>{@link #TRUE}</td><td>{@link #TRUE}</td></tr>
+	 * 	<tr><td>{@link #TRUE}</td><td>{@link #TRUE}</td><td>{@link #TRUE}</td></tr>
+	 * 	<tr><td>{@link #DEFAULT}</td><td>{@link #DEFAULT}</td><td>{@link #DEFAULT}</td></tr>
+	 * 	<tr><td>{@link #FALSE}</td><td>{@link #DEFAULT}</td><td>{@link #DEFAULT}</td></tr>
+	 * 	<tr><td>{@link #TRUE}</td><td>{@link #DEFAULT}</td><td>{@link #TRUE}</td></tr>
+	 * 	<tr><td>{@link #DEFAULT}</td><td>{@link #FALSE}</td><td>{@link #DEFAULT}</td></tr>
+	 * 	<tr><td>{@link #DEFAULT}</td><td>{@link #TRUE}</td><td>{@link #TRUE}</td></tr>
+	 * </table>
+	 *
+	 * @param other the other operand, which is lazily evaluated
+	 * @see #or(TriState)
+	 */
+	@Contract(pure = true)
+	public @NotNull TriState or(@NotNull Supplier<TriState> other) {
+		return switch (this) {
+			case TRUE -> this;
+			case FALSE -> other.get();
+			default -> {
+				var rightSide = other.get();
+				if (rightSide == FALSE) yield this;
+				else yield rightSide;
+			}
+		};
+	}
+
+	/**
 	 * Converts this triple state value into a boxed boolean.
 	 *
 	 * @return {@code null} if this is {@link #DEFAULT}, or the boolean value represented by this state otherwise

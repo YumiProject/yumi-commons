@@ -15,7 +15,6 @@
  * Said events are represented using the {@link dev.yumi.commons.event.Event Event} object which stores its listeners,
  * and events are created and managed with the help of an {@link dev.yumi.commons.event.EventManager event manager}.
  */
-
 module dev.yumi.commons.event {
 	requires transitive dev.yumi.commons.core;
 	requires dev.yumi.commons.collections;

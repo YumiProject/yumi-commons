@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -116,5 +118,79 @@ public class TriStateTest {
 			throw new AssertionError("Exception supplier should not be called for toBooleanOrElseThrow on TriState.FALSE");
 		}));
 		assertThrows(IllegalStateException.class, () -> TriState.DEFAULT.toBooleanOrElseThrow(IllegalStateException::new));
+	}
+
+	@Test
+	public void testOr() {
+		// Classic boolean OR truth map.
+		assertEquals(TriState.FALSE, TriState.FALSE.or(TriState.FALSE));
+		assertEquals(TriState.TRUE, TriState.TRUE.or(TriState.FALSE));
+		assertEquals(TriState.TRUE, TriState.FALSE.or(TriState.TRUE));
+		assertEquals(TriState.TRUE, TriState.TRUE.or(TriState.TRUE));
+
+		// Now, the messy part.
+		assertEquals(TriState.DEFAULT, TriState.DEFAULT.or(TriState.DEFAULT));
+		assertEquals(TriState.DEFAULT, TriState.FALSE.or(TriState.DEFAULT));
+		assertEquals(TriState.TRUE, TriState.TRUE.or(TriState.DEFAULT));
+		assertEquals(TriState.DEFAULT, TriState.DEFAULT.or(TriState.FALSE));
+		assertEquals(TriState.TRUE, TriState.DEFAULT.or(TriState.TRUE));
+	}
+
+	@Test
+	public void testLazyOr() {
+		// Classic boolean OR truth map.
+		assertEquals(TriState.FALSE, TriState.FALSE.or(rightSide(TriState.FALSE, true)));
+		assertEquals(TriState.TRUE, TriState.TRUE.or(rightSide(TriState.FALSE, false)));
+		assertEquals(TriState.TRUE, TriState.FALSE.or(rightSide(TriState.TRUE, true)));
+		assertEquals(TriState.TRUE, TriState.TRUE.or(rightSide(TriState.TRUE, false)));
+
+		// Now, the messy part.
+		assertEquals(TriState.DEFAULT, TriState.DEFAULT.or(rightSide(TriState.DEFAULT, true)));
+		assertEquals(TriState.DEFAULT, TriState.FALSE.or(rightSide(TriState.DEFAULT, true)));
+		assertEquals(TriState.TRUE, TriState.TRUE.or(rightSide(TriState.DEFAULT, false)));
+		assertEquals(TriState.DEFAULT, TriState.DEFAULT.or(rightSide(TriState.FALSE, true)));
+		assertEquals(TriState.TRUE, TriState.DEFAULT.or(rightSide(TriState.TRUE, true)));
+	}
+
+	@Test
+	public void testAnd() {
+		// Classic boolean AND truth map.
+		assertEquals(TriState.FALSE, TriState.FALSE.and(TriState.FALSE));
+		assertEquals(TriState.FALSE, TriState.TRUE.and(TriState.FALSE));
+		assertEquals(TriState.FALSE, TriState.FALSE.and(TriState.TRUE));
+		assertEquals(TriState.TRUE, TriState.TRUE.and(TriState.TRUE));
+
+		// Now, the messy part.
+		assertEquals(TriState.DEFAULT, TriState.DEFAULT.and(TriState.DEFAULT));
+		assertEquals(TriState.FALSE, TriState.FALSE.and(TriState.DEFAULT));
+		assertEquals(TriState.DEFAULT, TriState.TRUE.and(TriState.DEFAULT));
+		assertEquals(TriState.FALSE, TriState.DEFAULT.and(TriState.FALSE));
+		assertEquals(TriState.DEFAULT, TriState.DEFAULT.and(TriState.TRUE));
+	}
+
+	@Test
+	public void testLazyAnd() {
+		// Classic boolean AND truth map.
+		assertEquals(TriState.FALSE, TriState.FALSE.and(rightSide(TriState.FALSE, false)));
+		assertEquals(TriState.FALSE, TriState.TRUE.and(rightSide(TriState.FALSE, true)));
+		assertEquals(TriState.FALSE, TriState.FALSE.and(rightSide(TriState.TRUE, false)));
+		assertEquals(TriState.TRUE, TriState.TRUE.and(rightSide(TriState.TRUE, true)));
+
+		// Now, the messy part.
+		assertEquals(TriState.DEFAULT, TriState.DEFAULT.and(rightSide(TriState.DEFAULT, true)));
+		assertEquals(TriState.FALSE, TriState.FALSE.and(rightSide(TriState.DEFAULT, false)));
+		assertEquals(TriState.DEFAULT, TriState.TRUE.and(rightSide(TriState.DEFAULT, true)));
+		assertEquals(TriState.FALSE, TriState.DEFAULT.and(rightSide(TriState.FALSE, true)));
+		assertEquals(TriState.DEFAULT, TriState.DEFAULT.and(rightSide(TriState.TRUE, true)));
+	}
+
+	private static Supplier<TriState> rightSide(TriState state, boolean allowCall) {
+		return () -> {
+			if (!allowCall) {
+				fail("Right side operand should not be evaluated.");
+			}
+
+			return state;
+		};
 	}
 }

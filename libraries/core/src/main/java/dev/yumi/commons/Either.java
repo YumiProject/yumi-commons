@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * Represents a value of two possible types. An {@code Either} is either a {@link Left} or a {@link Right}.
+ * Represents a value of two possible types. An {@code Either} is either a {@linkplain Left left value} or a {@linkplain Right right value}.
  *
  * @param <L> the type of the left value
  * @param <R> the type of the right value

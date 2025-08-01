@@ -9,9 +9,11 @@ plugins {
 base.archivesName = Constants.getArtifactName(project.name)
 val fullName = "${Constants.PROJECT_NAME}: ${project.name.replaceFirstChar(Char::titlecase)}"
 
+val javaVersion = Integer.parseInt(project.property("java_version") as String)
+
 java {
 	toolchain {
-		languageVersion.set(JavaLanguageVersion.of(Constants.JAVA_VERSION))
+		languageVersion.set(JavaLanguageVersion.of(javaVersion))
 	}
 
 	withSourcesJar()
@@ -23,7 +25,7 @@ java {
 tasks.withType<JavaCompile>().configureEach {
 	options.encoding = "UTF-8"
 	options.isDeprecation = true
-	options.release.set(Constants.JAVA_VERSION)
+	options.release.set(javaVersion)
 
 	// Java Modules
 	options.javaModuleVersion = provider { version as String }

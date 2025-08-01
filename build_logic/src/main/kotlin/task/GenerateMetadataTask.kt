@@ -4,6 +4,7 @@ import Constants
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import gradle.kotlin.dsl.accessors._e6d6ee632fa4d9f88efc00012ebafdee.java
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.BasePluginExtension
@@ -24,6 +25,9 @@ abstract class GenerateMetadataTask : DefaultTask() {
 	val namespace: Property<String> = project.objects.property()
 
 	@get:Input
+	val providedNamespaces: ListProperty<String> = project.objects.listProperty()
+
+	@get:Input
 	val version: Property<String> = project.objects.property()
 
 	@get:Input
@@ -35,6 +39,9 @@ abstract class GenerateMetadataTask : DefaultTask() {
 	@get:Input
 	val dependencies: ListProperty<String> = project.objects.listProperty<String>()
 
+	@get:Input
+	val javaVersion: Property<Int> = project.objects.property()
+
 	@get:OutputFile
 	val fmjPath: RegularFileProperty = project.objects.fileProperty()
 
@@ -44,9 +51,11 @@ abstract class GenerateMetadataTask : DefaultTask() {
 		val base = project.extensions.getByType(BasePluginExtension::class.java)
 
 		this.group.convention(project.group.toString())
-		this.namespace.convention(base.archivesName)
+		this.namespace.convention(base.archivesName.map { it.replace("-", "_") })
+		this.providedNamespaces.convention(base.archivesName.map { listOf(it) })
 		this.version.convention(project.version.toString())
 
+		this.javaVersion.convention(project.java.toolchain.languageVersion.map { it.asInt() })
 		this.fmjPath.convention(project.layout.buildDirectory.file("generated/fabric.mod.json"))
 	}
 
@@ -63,6 +72,13 @@ abstract class GenerateMetadataTask : DefaultTask() {
 		json.addProperty("version", this.version.get())
 		json.addProperty("name", this.name.get())
 		json.addProperty("description", this.description.get())
+
+		val providedNamespaces = this.providedNamespaces.get()
+		if (providedNamespaces.isNotEmpty()) {
+			val namespaces = JsonArray()
+			providedNamespaces.forEach { namespace -> namespaces.add(namespace) }
+			json.add("provides", namespaces)
+		}
 
 		val authors = JsonArray()
 		Constants.DEVELOPERS.map {
@@ -86,7 +102,7 @@ abstract class GenerateMetadataTask : DefaultTask() {
 		this.dependencies.get().forEach {
 			dependencies.addProperty(Constants.getArtifactName(it), "^${this.version.get()}")
 		}
-		dependencies.addProperty("java", ">=${Constants.JAVA_VERSION}")
+		dependencies.addProperty("java", ">=${this.javaVersion.get()}")
 		json.add("depends", dependencies)
 
 		val custom = JsonObject()
