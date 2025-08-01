@@ -4,7 +4,7 @@ import Constants
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import gradle.kotlin.dsl.accessors._e6d6ee632fa4d9f88efc00012ebafdee.java
+import gradle.kotlin.dsl.accessors._e6d6ee632fa4d9f88efc00012ebafdee.ext
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.plugins.BasePluginExtension
@@ -55,7 +55,7 @@ abstract class GenerateMetadataTask : DefaultTask() {
 		this.providedNamespaces.convention(base.archivesName.map { listOf(it) })
 		this.version.convention(project.version.toString())
 
-		this.javaVersion.convention(project.java.toolchain.languageVersion.map { it.asInt() })
+		this.javaVersion.convention(Integer.parseInt(project.property("java_version").toString()))
 		this.fmjPath.convention(project.layout.buildDirectory.file("generated/fabric.mod.json"))
 	}
 
