@@ -56,7 +56,8 @@ tasks.jar {
 		attributes(
 			mapOf(
 				"Implementation-Version" to inputs.properties["version"],
-				"FMLModType" to "LIBRARY"
+				"FMLModType" to "LIBRARY",
+				"Fabric-Loom-Remap" to "false"
 			)
 		)
 	}
