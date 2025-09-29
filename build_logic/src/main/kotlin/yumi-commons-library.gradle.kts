@@ -56,7 +56,7 @@ tasks.jar {
 		attributes(
 			mapOf(
 				"Implementation-Version" to inputs.properties["version"],
-				"FMLModType" to "LIBRARY",
+				"FMLModType" to "GAMELIBRARY", // Needed for event hidden classes.
 				"Fabric-Loom-Remap" to "false"
 			)
 		)
