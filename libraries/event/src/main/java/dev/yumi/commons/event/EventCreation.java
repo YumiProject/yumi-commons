@@ -8,7 +8,7 @@
 
 package dev.yumi.commons.event;
 
-import org.jetbrains.annotations.NotNull;
+import module org.jetbrains.annotations;
 
 /**
  * Represents the event creation listener interface.

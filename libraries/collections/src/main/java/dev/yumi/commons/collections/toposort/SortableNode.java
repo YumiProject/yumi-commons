@@ -25,10 +25,7 @@
 
 package dev.yumi.commons.collections.toposort;
 
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Unmodifiable;
+import module org.jetbrains.annotations;
 
 import java.util.HashSet;
 import java.util.Set;

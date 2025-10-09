@@ -8,31 +8,29 @@
 
 package dev.yumi.commons.event.invoker.dynamic;
 
-import dev.yumi.commons.TriState;
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
+import module org.jetbrains.annotations;
 
+import dev.yumi.commons.TriState;
+
+import java.lang.classfile.CodeBuilder;
+import java.lang.constant.ClassDesc;
 import java.lang.reflect.Method;
 
-import static org.objectweb.asm.Opcodes.*;
-
-/**
- * Represents a factory of an invoker implementation of an {@link dev.yumi.commons.event.Event} given an array of listeners
- * for which the invoker implementation is dynamically generated for which the invoker returns a {@link TriState}.
- * <p>
- * The first listener to return a value other than {@link TriState#DEFAULT} will make the
- * invoker implementation return early with that value and skip the next listeners,
- * or it returns {@link TriState#DEFAULT} otherwise.
- *
- * @param <T> the type of the invoker executed by the event
- * @author LambdAurora
- * @version 1.0.0
- * @since 1.0.0
- */
+/// Represents a factory of an invoker implementation of an {@link dev.yumi.commons.event.Event} given an array of listeners
+/// for which the invoker implementation is dynamically generated for which the invoker returns a {@link TriState}.
+///
+/// The first listener to return a value other than {@link TriState#DEFAULT} will make the
+/// invoker implementation return early with that value and skip the next listeners,
+/// or it returns {@link TriState#DEFAULT} otherwise.
+///
+/// @param <T> the type of the invoker executed by the event
+/// @author LambdAurora
+/// @version 2.0.0
+/// @since 1.0.0
 @ApiStatus.Internal
 public final class TriStateFilterInvokerFactory<T> extends DynamicInvokerFactory<T> {
+	private static final ClassDesc CD_TRISTATE = ClassDesc.of(TriState.class.getName());
+
 	public TriStateFilterInvokerFactory(@NotNull Class<? super T> type) {
 		super(type);
 	}
@@ -48,34 +46,30 @@ public final class TriStateFilterInvokerFactory<T> extends DynamicInvokerFactory
 		}
 	}
 
-	private void writeGetTriStateDefault(MethodVisitor mv) {
-		mv.visitFieldInsn(GETSTATIC,
-				TriState.class.getName().replace('.', '/'), TriState.DEFAULT.name(),
-				Descriptors.describe(TriState.class)
-		);
+	private void writeGetTriStateDefault(CodeBuilder mb) {
+		mb.getstatic(CD_TRISTATE, TriState.DEFAULT.name(), CD_TRISTATE);
 	}
 
 	@Override
-	protected void writeImplementationMethod(MethodVisitor mv, WriterContext context) {
-		int resultVar = context.iVar() + 1;
-		var earlyReturnLabel = new Label();
+	protected void writeImplementationMethod(WriterContext context) {
+		int resultVar = context.data().iVar() + 1;
+		var earlyReturnLabel = context.codeBuilder().newLabel();
 
-		this.writeMethodStart(mv, context);
-		mv.visitVarInsn(ASTORE, resultVar);
+		context.writeMethod(block -> {
+			block.codeBuilder().astore(resultVar);
 
-		// Compare result with TriState.DEFAULT to determine early return.
-		mv.visitVarInsn(ALOAD, resultVar);
-		this.writeGetTriStateDefault(mv);
-		mv.visitJumpInsn(IF_ACMPNE, earlyReturnLabel); // if (result != TriState.DEFAULT) goto earlyReturn;
-		this.writeIncrement(mv, context);
+			// Compare result with TriState.DEFAULT to determine early return.
+			block.codeBuilder().aload(resultVar);
+			this.writeGetTriStateDefault(block.codeBuilder());
+			block.codeBuilder().if_acmpne(earlyReturnLabel); // if (result != TriState.DEFAULT) goto earlyReturn;
+		});
+		this.writeGetTriStateDefault(context.codeBuilder());
+		context.codeBuilder().areturn();
 
 		// earlyReturn:
-		mv.visitLabel(earlyReturnLabel);
-		mv.visitVarInsn(ALOAD, resultVar);
-		mv.visitInsn(ARETURN); // return result;
-
-		mv.visitLabel(context.getForEndLabel());
-		this.writeGetTriStateDefault(mv);
-		mv.visitInsn(ARETURN);
+		context.codeBuilder()
+				.labelBinding(earlyReturnLabel)
+				.aload(resultVar)
+				.areturn(); // return result;
 	}
 }

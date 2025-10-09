@@ -8,23 +8,17 @@
 
 package dev.yumi.commons.event.invoker.dynamic;
 
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
-import org.objectweb.asm.MethodVisitor;
+import module org.jetbrains.annotations;
 
 import java.lang.reflect.Method;
 
-import static org.objectweb.asm.Opcodes.RETURN;
-
-/**
- * Represents a factory of an invoker implementation of an {@link dev.yumi.commons.event.Event} given an array of listeners
- * for which the invoker implementation is dynamically generated in the case the invoker doesn't return anything.
- *
- * @param <T> the type of the invoker executed by the event
- * @author LambdAurora
- * @version 1.0.0
- * @since 1.0.0
- */
+/// Represents a factory of an invoker implementation of an {@link dev.yumi.commons.event.Event} given an array of listeners
+/// for which the invoker implementation is dynamically generated in the case the invoker doesn't return anything.
+///
+/// @param <T> the type of the invoker executed by the event
+/// @author LambdAurora
+/// @version 2.0.0
+/// @since 1.0.0
 @ApiStatus.Internal
 public final class SequenceInvokerFactory<T> extends DynamicInvokerFactory<T> {
 	public SequenceInvokerFactory(@NotNull Class<? super T> type) {
@@ -43,11 +37,8 @@ public final class SequenceInvokerFactory<T> extends DynamicInvokerFactory<T> {
 	}
 
 	@Override
-	protected void writeImplementationMethod(MethodVisitor mv, WriterContext context) {
-		this.writeMethodStart(mv, context);
-		this.writeIncrement(mv, context);
-
-		mv.visitLabel(context.getForEndLabel());
-		mv.visitInsn(RETURN);
+	protected void writeImplementationMethod(WriterContext context) {
+		context.writeMethod(_ -> {});
+		context.codeBuilder().return_();
 	}
 }

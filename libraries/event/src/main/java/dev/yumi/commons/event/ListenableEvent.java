@@ -8,8 +8,7 @@
 
 package dev.yumi.commons.event;
 
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
+import module org.jetbrains.annotations;
 
 /**
  * Represents an event or event-like object which can be listened.
@@ -28,7 +27,8 @@ public interface ListenableEvent<I extends Comparable<? super I>, T> {
 	 * {@return the default phase identifier of this event}
 	 */
 	@Contract(pure = true)
-	@NotNull I defaultPhaseId();
+	@NotNull
+	I defaultPhaseId();
 
 	/**
 	 * Registers a listener to this event.

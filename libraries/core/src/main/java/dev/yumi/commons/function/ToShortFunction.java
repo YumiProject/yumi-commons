@@ -8,7 +8,7 @@
 
 package dev.yumi.commons.function;
 
-import org.jetbrains.annotations.NotNull;
+import module org.jetbrains.annotations;
 
 import java.util.Objects;
 import java.util.function.Function;

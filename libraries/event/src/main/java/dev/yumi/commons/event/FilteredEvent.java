@@ -8,10 +8,9 @@
 
 package dev.yumi.commons.event;
 
+import module org.jetbrains.annotations;
+
 import dev.yumi.commons.function.YumiPredicates;
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Array;
@@ -22,95 +21,91 @@ import java.util.WeakHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-/**
- * Represents an {@linkplain Event event} which can filter its listeners given an invocation context.
- * <p>
- * This type of event will respect the same rules and assumptions as regular events.
- *
- * <h2>Example: Registering filtered listeners</h2>
- * <p>
- * Similar to how you would register a listener in a regular event, you pass an instance of {@code T} into {@link #register}.
- * Using the same {@link #register(Object) register} methods from {@link Event} will result in registering a global listener
- * which will be invoked no matter the context.
- * To make your listener context-specific you need to add a predicate given a context of type {@code C}.
- *
- * <pre>{@code
- * // Events are created and managed by an EventManager.
- * // They are given a type for the phase identifiers and the default phase identifier.
- * static final EventManager<String> EVENT_MANAGER = new EventManager("default");
- *
- * // Events should use a dedicated functional interface for T rather than overloading multiple events to the same type
- * // to allow those who implement using a class to implement multiple events.
- * @FunctionalInterface
- * public interface Example {
- *     void doSomething();
- * }
- *
- * // Filtered events also have an invocation context.
- * public record EventContext(String value) {}
- *
- * // You can also return this instance of Event from a method, may be useful where a parameter is needed to get
- * // the right instance of Event.
- * public static final Event<String, Example> EXAMPLE = EVENT_MANAGER.create(Example.class);
- *
- * public void registerEvents() {
- *     // Since T is a functional interface, we can use the lambda form.
- *     EXAMPLE.register(() -> {
- *         // Do something
- *     }, context -> context.value().equals("test"));
- *
- *     // Or we can use a method reference.
- *     EXAMPLE.register(this::runSomething, context -> context.value().equals("some other context"));
- *
- *     // Or implement T using a class.
- *     // You can also use an anonymous class here; for brevity that is not included.
- *     EXAMPLE.register(new ImplementedOntoClass()); // This is a global listener.
- * }
- *
- * public void runSomething() {
- *     // Do something else
- * }
- *
- * // When implementing onto a class, the class must implement the same type as the event invoker.
- * class ImplementedOntoClass implements Example {
- *     public void doSomething() {
- *         // Do something else again
- *     }
- * }
- * }</pre>
- *
- * <h2>Example: Executing a filtered event</h2>
- * <p>
- * While you could execute a filtered event the same way a regular event is executed,
- * it would only invoke global listeners due to it not being aware of a context.
- * Executing a filtered event is done by first creating a contextualized event
- * from the event using {@link #forContext(Object)} for a given context,
- * then calling a method on the event invoker. Where {@code T} is Example, executing a filtered event
- * is done through the following:
- *
- * <pre>{@code
- * ContextualizedEvent contextualizedEvent = EXAMPLE.forContext(new EventContext("test"));
- *
- * // Invoke the listeners relevant to the given context.
- * contextualizedEvent.invoker().doSomething();
- * }</pre>
- * <p>
- * This architecture has advantages only if the contextualized event is stored and only re-created if the context is different.
- * Otherwise, a regular {@linkplain Event event} would do just fine.
- *
- * @param <I> the phase identifier type
- * @param <T> the type of the listeners, and the type of the invoker used to execute an event
- * @param <C> the type of the context used to filter out which listeners should be invoked
- * @author LambdAurora
- * @version 1.0.0
- * @since 1.0.0
- *
- * @see Event
- */
+/// Represents an {@linkplain Event event} which can filter its listeners given an invocation context.
+///
+/// This type of event will respect the same rules and assumptions as regular events.
+///
+/// ## Example: Registering filtered listeners
+///
+/// Similar to how you would register a listener in a regular event, you pass an instance of `T` into {@link #register}.
+/// Using the same {@link #register(Object) register} methods from {@link Event} will result in registering a global listener
+/// which will be invoked no matter the context.
+/// To make your listener context-specific you need to add a predicate given a context of type `C`.
+///
+/// {@snippet lang = java:
+/// // Events are created and managed by an EventManager.
+/// // They are given a type for the phase identifiers and the default phase identifier.
+/// static final EventManager<String> EVENT_MANAGER = new EventManager<>("default", Function.identity());
+///
+/// // Events should use a dedicated functional interface for T rather than overloading multiple events to the same type
+/// // to allow those who implement using a class to implement multiple events.
+/// @FunctionalInterface
+/// public interface Example {
+///     void doSomething();
+/// }
+///
+/// // Filtered events also have an invocation context.
+/// public record EventContext(String value) {}
+///
+/// // You can also return this instance of Event from a method, may be useful where a parameter is needed to get
+/// // the right instance of Event.
+/// public static final Event<String, Example> EXAMPLE = EVENT_MANAGER.create(Example.class);
+///
+/// public void registerEvents() {
+///     // Since T is a functional interface, we can use the lambda form.
+///     EXAMPLE.register(() -> {
+///         // Do something
+///     }, context -> context.value().equals("test"));
+///
+///     // Or we can use a method reference.
+///     EXAMPLE.register(this::runSomething, context -> context.value().equals("some other context"));
+///
+///     // Or implement T using a class.
+///     // You can also use an anonymous class here; for brevity that is not included.
+///     EXAMPLE.register(new ImplementedOntoClass()); // This is a global listener.
+/// }
+///
+/// public void runSomething() {
+///     // Do something else
+/// }
+///
+/// // When implementing onto a class, the class must implement the same type as the event invoker.
+/// class ImplementedOntoClass implements Example {
+///     public void doSomething() {
+///         // Do something else again
+///     }
+/// }
+///}
+///
+/// ## Example: Executing a filtered event
+///
+/// While you could execute a filtered event the same way a regular event is executed,
+/// it would only invoke global listeners due to it not being aware of a context.
+/// Executing a filtered event is done by first creating a contextualized event
+/// from the event using {@link #forContext(Object)} for a given context,
+/// then calling a method on the event invoker. Where `T` is Example, executing a filtered event
+/// is done through the following:
+///
+/// {@snippet lang = java:
+/// ContextualizedEvent<String, EventContext> contextualizedEvent = EXAMPLE.forContext(new EventContext("test"));
+///
+/// // Invoke the listeners relevant to the given context.
+/// contextualizedEvent.invoker().doSomething();
+///}
+///
+/// This architecture has advantages only if the contextualized event is stored and only re-created if the context is different.
+/// Otherwise, a regular {@linkplain Event event} would do just fine.
+///
+/// @param <I> the phase identifier type
+/// @param <T> the type of the listeners, and the type of the invoker used to execute an event
+/// @param <C> the type of the context used to filter out which listeners should be invoked
+/// @author LambdAurora
+/// @version 1.0.0
+/// @since 1.0.0
+///
+/// @see Event
 public final class FilteredEvent<I extends Comparable<? super I>, T, C> extends Event<I, T> {
-	/**
-	 * A cache of currently alive contextualized events.
-	 */
+	/// A cache of currently alive contextualized events.
 	private final Map<C, WeakReference<ContextualizedEvent<I, T, C>>> contextualizedEvents = new WeakHashMap<>();
 
 	FilteredEvent(
@@ -121,29 +116,25 @@ public final class FilteredEvent<I extends Comparable<? super I>, T, C> extends 
 		super(type, defaultPhaseId, invokerFactory);
 	}
 
-	/**
-	 * Registers a listener to this event, which will be called only if the execution context matches the filter.
-	 *
-	 * @param listener the listener to register
-	 * @param filter the predicate to test whether the listener to register should be called within a given context
-	 * @see #register(Object)
-	 * @see #register(Comparable, Object)
-	 * @see #register(Comparable, Object, Predicate)
-	 */
+	/// Registers a listener to this event, which will be called only if the execution context matches the filter.
+	///
+	/// @param listener the listener to register
+	/// @param filter the predicate to test whether the listener to register should be called within a given context
+	/// @see #register(Object)
+	/// @see #register(Comparable, Object)
+	/// @see #register(Comparable, Object, Predicate)
 	public void register(@NotNull T listener, @NotNull Predicate<C> filter) {
 		this.register(this.defaultPhaseId(), listener, filter);
 	}
 
-	/**
-	 * Registers a listener to this event for a specific phase, which will called only if the execution context matches the filter.
-	 *
-	 * @param phaseIdentifier the identifier of the phase to register the listener in
-	 * @param listener the listener to register
-	 * @param filter the predicate to test whether the listener to register should be called within a given context
-	 * @see #register(Object)
-	 * @see #register(Object, Predicate)
-	 * @see #register(Comparable, Object)
-	 */
+	/// Registers a listener to this event for a specific phase, which will called only if the execution context matches the filter.
+	///
+	/// @param phaseIdentifier the identifier of the phase to register the listener in
+	/// @param listener the listener to register
+	/// @param filter the predicate to test whether the listener to register should be called within a given context
+	/// @see #register(Object)
+	/// @see #register(Object, Predicate)
+	/// @see #register(Comparable, Object)
 	public void register(@NotNull I phaseIdentifier, @NotNull T listener, @NotNull Predicate<C> filter) {
 		Objects.requireNonNull(phaseIdentifier, "Cannot register a listener for a null phase.");
 		Objects.requireNonNull(listener, "Cannot register a null listener.");
@@ -159,34 +150,30 @@ public final class FilteredEvent<I extends Comparable<? super I>, T, C> extends 
 		}
 	}
 
-	/**
-	 * Creates a contextualized event of the given context.
-	 * <p>
-	 * This may return an existing contextualized event if one was already associated with the given context.
-	 * <p>
-	 * Each contextualized events will be dynamically updated
-	 * if new listeners which match the given context are registered to this event.
-	 *
-	 * @param context the current context
-	 * @return the contextualized event for the given context
-	 * @see #forContext(Object, boolean)
-	 */
+	/// Creates a contextualized event of the given context.
+	/// <p>
+	/// This may return an existing contextualized event if one was already associated with the given context.
+	/// <p>
+	/// Each contextualized events will be dynamically updated
+	/// if new listeners which match the given context are registered to this event.
+	///
+	/// @param context the current context
+	/// @return the contextualized event for the given context
+	/// @see #forContext(Object, boolean)
 	public ContextualizedEvent<I, T, C> forContext(@NotNull C context) {
 		return this.forContext(context, false);
 	}
 
-	/**
-	 * Creates a contextualized event of the given context.
-	 * <p>
-	 * Each contextualized events will be dynamically updated
-	 * if new listeners which match the given context are registered to this event.
-	 *
-	 * @param context the current context
-	 * @param replace {@code true} if an existing contextualized event of the same context should be replaced,
-	 * or {@code false} otherwise
-	 * @return the contextualized event for the given context
-	 * @see #forContext(Object)
-	 */
+	/// Creates a contextualized event of the given context.
+	///
+	/// Each contextualized events will be dynamically updated
+	/// if new listeners which match the given context are registered to this event.
+	///
+	/// @param context the current context
+	/// @param replace `true` if an existing contextualized event of the same context should be replaced,
+	/// or `false` otherwise
+	/// @return the contextualized event for the given context
+	/// @see #forContext(Object)
 	public ContextualizedEvent<I, T, C> forContext(@NotNull C context, boolean replace) {
 		this.lock.lock();
 		try {
@@ -305,21 +292,17 @@ public final class FilteredEvent<I extends Comparable<? super I>, T, C> extends 
 		}
 	}
 
-	/**
-	 * Represents a listener.
-	 *
-	 * @param listener the listener itself
-	 * @param selector the selector of this listener, may be null if this listener is global
-	 * @param <T> the type of listener
-	 * @param <C> the type of filtering context
-	 */
+	/// Represents a listener.
+	///
+	/// @param listener the listener itself
+	/// @param selector the selector of this listener, may be null if this listener is global
+	/// @param <T> the type of listener
+	/// @param <C> the type of filtering context
 	@ApiStatus.Internal
 	record Listener<T, C>(T listener, @Nullable Predicate<C> selector) {
-		/**
-		 * {@return {@code true} if this listener should listen to the given context, or {@code false} otherwise}
-		 *
-		 * @param context the filtering context
-		 */
+		/// {@return `true` if this listener should listen to the given context, or `false` otherwise}
+		///
+		/// @param context the filtering context
 		boolean shouldListen(C context) {
 			return this.selector == null || this.selector.test(context);
 		}

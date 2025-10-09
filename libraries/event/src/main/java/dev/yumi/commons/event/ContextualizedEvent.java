@@ -8,9 +8,9 @@
 
 package dev.yumi.commons.event;
 
+import module org.jetbrains.annotations;
+
 import dev.yumi.commons.collections.toposort.SortableNode;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Predicate;
 

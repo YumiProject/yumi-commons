@@ -8,7 +8,7 @@
 
 package dev.yumi.commons.collections;
 
-import org.jetbrains.annotations.NotNull;
+import module org.jetbrains.annotations;
 
 import java.util.*;
 import java.util.function.Consumer;

@@ -8,9 +8,7 @@
 
 package dev.yumi.commons;
 
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import module org.jetbrains.annotations;
 
 import java.util.NoSuchElementException;
 import java.util.Objects;

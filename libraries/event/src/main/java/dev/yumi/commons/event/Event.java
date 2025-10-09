@@ -26,12 +26,10 @@
 
 package dev.yumi.commons.event;
 
+import module org.jetbrains.annotations;
+
 import dev.yumi.commons.collections.toposort.NodeSorting;
 import dev.yumi.commons.collections.toposort.SortableNode;
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Unmodifiable;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -39,121 +37,105 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 
-/**
- * An object which stores event listeners.
- * <p>
- * The factory methods for Event allows the user to provide an implementation of {@code T} which is used to
- * execute the listeners stored in this event instance. This allows a user to control how iteration works, whether an
- * event is cancelled after a specific listener is executed or to make an event
- * {@link ParameterInvokingEvent parameter invoking}.
- * <p>
- * Generally {@code T} should be a type which is a
- * <a href="https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-9.8">functional interface</a>
- * to allow listeners registered to the event to be specified in a lambda, method reference form or implemented onto a
- * class. A way to ensure that an interface is a functional interface is to place a {@link FunctionalInterface}
- * annotation on the type. You can let {@code T} not be a functional interface, however it heavily complicates the process
- * of implementing an invoker and only allows listener implementations to be done by implementing an interface onto a
- * class or extending a class.
- * <p>
- * An Event can have phases, each listener is attributed to a phase ({@link Event#defaultPhaseId()} if unspecified),
- * and each phase can have a defined ordering. Each event phase is identified, ordering is done
- * by explicitly stating that event phase {@code A} will run before event phase {@code B}, for example.
- * See {@link Event#addPhaseOrdering(Comparable, Comparable)} for more information.
- *
- * <h2>Example: Registering listeners</h2>
- * <p>
- * The most common use of an event will be registering a listener which is executed by the event. To register a listener,
- * pass an instance of {@code T} into {@link #register}.
- *
- * <pre>{@code
- * // Events are created and managed by an EventManager.
- * // They are given a type for the phase identifiers and the default phase identifier.
- * static final EventManager<String> EVENT_MANAGER = new EventManager("default", Function.identity());
- *
- * // Events should use a dedicated functional interface for T rather than overloading multiple events to the same type
- * // to allow those who implement using a class to implement multiple events.
- * @FunctionalInterface
- * public interface Example {
- *     void doSomething();
- * }
- *
- * // You can also return this instance of Event from a method, may be useful where a parameter is needed to get
- * // the right instance of Event.
- * public static final Event<String, Example> EXAMPLE = EVENT_MANAGER.create(Example.class);
- *
- * public void registerEvents() {
- *     // Since T is a functional interface, we can use the lambda form.
- *     EXAMPLE.register(() -> {
- *         // Do something
- *     });
- *
- *     // Or we can use a method reference.
- *     EXAMPLE.register(this::runSomething);
- *
- *     // Or implement T using a class.
- *     // You can also use an anonymous class here; for brevity that is not included.
- *     EXAMPLE.register(new ImplementedOntoClass());
- * }
- *
- * public void runSomething() {
- *     // Do something else
- * }
- *
- * // When implementing onto a class, the class must implement the same type as the event invoker.
- * class ImplementedOntoClass implements Example {
- *     public void doSomething() {
- *         // Do something else again
- *     }
- * }
- * }</pre>
- *
- * <h2>Example: Executing an event</h2>
- * <p>
- * Executing an event is done by calling a method on the event invoker. Where {@code T} is Example, executing an event
- * is done through the following:
- *
- * <pre>{@code
- * EXAMPLE.invoker().doSomething();
- * }</pre>
- *
- * @param <I> the phase identifier type
- * @param <T> the type of the listeners, and the type of the invoker used to execute an event
- * @version 1.0.0
- * @since 1.0.0
- *
- * @see FilteredEvent
- */
+/// An object which stores event listeners.
+///
+/// The factory methods for Event allows the user to provide an implementation of `T` which is used to
+/// execute the listeners stored in this event instance. This allows a user to control how iteration works, whether an
+/// event is cancelled after a specific listener is executed or to make an event
+/// {@link ParameterInvokingEvent parameter invoking}.
+///
+/// Generally `T` should be a type which is a
+/// [functional interface](https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-9.8)
+/// to allow listeners registered to the event to be specified in a lambda, method reference form or implemented onto a
+/// class. A way to ensure that an interface is a functional interface is to place a {@link FunctionalInterface}
+/// annotation on the type. You can let `T` not be a functional interface, however it heavily complicates the process
+/// of implementing an invoker and only allows listener implementations to be done by implementing an interface onto a
+/// class or extending a class.
+///
+/// An Event can have phases, each listener is attributed to a phase ({@link Event#defaultPhaseId()} if unspecified),
+/// and each phase can have a defined ordering. Each event phase is identified, ordering is done
+/// by explicitly stating that event phase `A` will run before event phase `B`, for example.
+/// See {@link Event#addPhaseOrdering(Comparable, Comparable)} for more information.
+///
+/// ## Example: Registering listeners
+///
+/// The most common use of an event will be registering a listener which is executed by the event. To register a listener,
+/// pass an instance of `T` into {@link #register}.
+///
+/// {@snippet lang = java:
+/// // Events are created and managed by an EventManager.
+/// // They are given a type for the phase identifiers and the default phase identifier.
+/// static final EventManager<String> EVENT_MANAGER = new EventManager<>("default", Function.identity());
+///
+/// // Events should use a dedicated functional interface for T rather than overloading multiple events to the same type
+/// // to allow those who implement using a class to implement multiple events.
+/// @FunctionalInterface
+/// public interface Example {
+///     void doSomething();
+/// }
+///
+/// // You can also return this instance of Event from a method, may be useful where a parameter is needed to get
+/// // the right instance of Event.
+/// public static final Event<String, Example> EXAMPLE = EVENT_MANAGER.create(Example.class);
+///
+/// public void registerEvents() {
+///     // Since T is a functional interface, we can use the lambda form.
+///     EXAMPLE.register(() -> {
+///         // Do something
+///     });
+///
+///     // Or we can use a method reference.
+///     EXAMPLE.register(this::runSomething);
+///
+///     // Or implement T using a class.
+///     // You can also use an anonymous class here; for brevity that is not included.
+///     EXAMPLE.register(new ImplementedOntoClass());
+/// }
+///
+/// public void runSomething() {
+///     // Do something else
+/// }
+///
+/// // When implementing onto a class, the class must implement the same type as the event invoker.
+/// class ImplementedOntoClass implements Example {
+///     public void doSomething() {
+///         // Do something else again
+///     }
+/// }
+///}
+///
+/// ## Example: Executing an event
+///
+/// Executing an event is done by calling a method on the event invoker. Where `T` is Example, executing an event
+/// is done through the following:
+///
+/// ```java
+/// EXAMPLE.invoker().doSomething();
+///```
+///
+/// @param <I> the phase identifier type
+/// @param <T> the type of the listeners, and the type of the invoker used to execute an event
+/// @version 1.0.0
+/// @since 1.0.0
+///
+/// @see FilteredEvent
 public sealed class Event<I extends Comparable<? super I>, T>
 		implements InvokableEvent<T>, ListenableEvent<I, T>
 		permits FilteredEvent, ContextualizedEvent {
-	/**
-	 * The type of listener of this event.
-	 */
+	/// The type of listener of this event.
 	private final Class<? super T> type;
-	/**
-	 * The default phase identifier.
-	 */
+	/// The default phase identifier.
 	private final I defaultPhaseId;
-	/**
-	 * The function used to generate the implementation of the invoker to call the listeners.
-	 */
+	/// The function used to generate the implementation of the invoker to call the listeners.
 	final Function<T[], T> invokerFactory;
 	final Lock lock = new ReentrantLock();
-	/**
-	 * The invoker to execute the callbacks.
-	 */
+	/// The invoker to execute the callbacks.
 	private volatile T invoker;
-	/**
-	 * The registered listeners.
-	 */
+	/// The registered listeners.
 	T[] listeners;
-	/**
-	 * The registered event phases.
-	 */
+	/// The registered event phases.
 	final Map<I, PhaseData<I, T>> phases = new LinkedHashMap<>();
-	/**
-	 * The event phases sorted in a way that satisfies dependencies.
-	 */
+	/// The event phases sorted in a way that satisfies dependencies.
 	final List<PhaseData<I, T>> sortedPhases = new ArrayList<>();
 
 	@SuppressWarnings("unchecked")
@@ -173,9 +155,7 @@ public sealed class Event<I extends Comparable<? super I>, T>
 		this.update();
 	}
 
-	/**
-	 * {@return the class of the kind of listeners accepted by this event}
-	 */
+	/// {@return the class of the kind of listeners accepted by this event}
 	@Contract(pure = true)
 	public @NotNull Class<? super T> type() {
 		return this.type;
@@ -301,12 +281,10 @@ public sealed class Event<I extends Comparable<? super I>, T>
 				'}';
 	}
 
-	/**
-	 * Represents data for a specific event phase.
-	 *
-	 * @param <I> the phase identifier type
-	 * @param <T> the type of the listeners
-	 */
+	/// Represents data for a specific event phase.
+	///
+	/// @param <I> the phase identifier type
+	/// @param <T> the type of the listeners
 	@ApiStatus.Internal
 	static sealed class PhaseData<I, T> extends SortableNode<I, PhaseData<I, T>>
 			permits FilteredEvent.FilteredPhaseData {

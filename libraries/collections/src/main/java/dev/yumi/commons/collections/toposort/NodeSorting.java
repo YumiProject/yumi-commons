@@ -25,9 +25,8 @@
 
 package dev.yumi.commons.collections.toposort;
 
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.VisibleForTesting;
+import module org.jetbrains.annotations;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

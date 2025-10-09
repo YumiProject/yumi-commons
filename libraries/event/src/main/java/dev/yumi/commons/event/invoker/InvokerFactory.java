@@ -8,8 +8,7 @@
 
 package dev.yumi.commons.event.invoker;
 
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
+import module org.jetbrains.annotations;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;

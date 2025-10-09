@@ -8,8 +8,7 @@
 
 package dev.yumi.commons;
 
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
+import module org.jetbrains.annotations;
 
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -225,7 +224,8 @@ public sealed interface Either<L, R> permits Either.Left, Either.Right {
 	 * @return an {@code Either} with the right and left swapped
 	 */
 	@Contract(value = "-> new", pure = true)
-	@NotNull Either<R, L> swap();
+	@NotNull
+	Either<R, L> swap();
 
 	/**
 	 * Represents the left value of an {@link Either}.

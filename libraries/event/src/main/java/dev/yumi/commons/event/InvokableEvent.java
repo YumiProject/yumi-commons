@@ -8,8 +8,7 @@
 
 package dev.yumi.commons.event;
 
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
+import module org.jetbrains.annotations;
 
 /**
  * Represents an event or event-like object which can be invoked by the same method as their listeners.
@@ -30,5 +29,6 @@ public interface InvokableEvent<T> {
 	 * at any time. Always call this method when you intend to execute an event.
 	 */
 	@Contract(pure = true)
-	@NotNull T invoker();
+	@NotNull
+	T invoker();
 }
