@@ -49,12 +49,12 @@ public abstract class SortableNode<I, N extends SortableNode<I, N>> {
 	 * {@return the identifier of this node}
 	 */
 	@Contract(pure = true)
-	public abstract @NotNull I getId();
+	public abstract I getId();
 
 	/**
 	 * {@return a set of the previous nodes}
 	 */
-	protected @NotNull @Unmodifiable Set<N> getPreviousNodes() {
+	protected @Unmodifiable Set<N> getPreviousNodes() {
 		return Set.copyOf(this.previousNodes);
 	}
 
@@ -64,14 +64,14 @@ public abstract class SortableNode<I, N extends SortableNode<I, N>> {
 	 * @param node the previous node before this one
 	 */
 	@ApiStatus.OverrideOnly
-	protected void addPreviousNode(@NotNull N node) {
+	protected void addPreviousNode(N node) {
 		this.previousNodes.add(node);
 	}
 
 	/**
 	 * {@return a set of the next nodes}
 	 */
-	protected @NotNull @Unmodifiable Set<N> getNextNodes() {
+	protected @Unmodifiable Set<N> getNextNodes() {
 		return Set.copyOf(this.nextNodes);
 	}
 
@@ -81,7 +81,7 @@ public abstract class SortableNode<I, N extends SortableNode<I, N>> {
 	 * @param node the next node after this one
 	 */
 	@ApiStatus.OverrideOnly
-	protected void addNextNode(@NotNull N node) {
+	protected void addNextNode(N node) {
 		this.nextNodes.add(node);
 	}
 
@@ -92,7 +92,7 @@ public abstract class SortableNode<I, N extends SortableNode<I, N>> {
 	 * @param second the node that should be sorted second
 	 * @param <N> the type of the sortable node
 	 */
-	public static <I, N extends SortableNode<I, N>> void link(@NotNull N first, @NotNull N second) {
+	public static <I, N extends SortableNode<I, N>> void link(N first, N second) {
 		if (first == second) {
 			throw new IllegalArgumentException("Cannot link a node to itself!");
 		}

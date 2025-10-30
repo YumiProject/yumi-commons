@@ -36,6 +36,10 @@ tasks.withType<Javadoc>().configureEach {
 		this as StandardJavadocDocletOptions
 
 		addStringOption("Xdoclint:all,-missing", "-quiet")
+		links(
+			"https://jspecify.dev/docs/api/",
+			"https://javadoc.io/doc/org.jetbrains/annotations/26.0.2/",
+		)
 	}
 }
 

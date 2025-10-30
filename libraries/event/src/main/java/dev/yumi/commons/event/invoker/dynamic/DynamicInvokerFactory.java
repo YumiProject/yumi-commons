@@ -39,11 +39,11 @@ sealed abstract class DynamicInvokerFactory<T> extends InvokerFactory<T>
 	protected final MethodTypeDesc lambdaMethodType;
 	protected final Function<T[], T> factory;
 
-	protected DynamicInvokerFactory(@NotNull Class<? super T> type) {
+	protected DynamicInvokerFactory(Class<? super T> type) {
 		this(type, getFunctionalMethod(type));
 	}
 
-	protected DynamicInvokerFactory(@NotNull Class<? super T> type, @NotNull Method listenerMethod) {
+	protected DynamicInvokerFactory(Class<? super T> type, Method listenerMethod) {
 		super(type);
 		this.checkMethod(listenerMethod);
 		this.ensureModuleConstraints(listenerMethod);
@@ -75,9 +75,9 @@ sealed abstract class DynamicInvokerFactory<T> extends InvokerFactory<T>
 	///
 	/// @param method the invoker method
 	@Contract(pure = true)
-	protected abstract void checkMethod(@NotNull Method method);
+	protected abstract void checkMethod(Method method);
 
-	private void ensureModuleConstraints(@NotNull Method method) {
+	private void ensureModuleConstraints(Method method) {
 		// Since we are defining a class that implements type at runtime,
 		// we need to ensure we can actually read the class we implement...
 		MODULE.addReads(this.type.getModule());
@@ -88,7 +88,7 @@ sealed abstract class DynamicInvokerFactory<T> extends InvokerFactory<T>
 		}
 	}
 
-	private static void ensureModuleConstraintForType(@NotNull Class<?> type) {
+	private static void ensureModuleConstraintForType(Class<?> type) {
 		if (type.isPrimitive()) return;
 		if (type.isArray()) {
 			ensureModuleConstraintForType(type.componentType());

@@ -53,7 +53,7 @@ public interface BooleanBinaryOperator {
 	 * {@return a binary operator that represents the logical negation of this binary operator}
 	 */
 	@Contract(pure = true)
-	default @NotNull BooleanBinaryOperator negate() {
+	default BooleanBinaryOperator negate() {
 		return (a, b) -> !this.apply(a, b);
 	}
 
@@ -62,7 +62,7 @@ public interface BooleanBinaryOperator {
 	 *
 	 * @param other the other binary operator
 	 */
-	default @NotNull BooleanBinaryOperator and(@NotNull BooleanBinaryOperator other) {
+	default BooleanBinaryOperator and(BooleanBinaryOperator other) {
 		Objects.requireNonNull(other);
 		return (a, b) -> this.apply(a, b) && other.apply(a, b);
 	}
@@ -72,7 +72,7 @@ public interface BooleanBinaryOperator {
 	 *
 	 * @param other the other binary operator
 	 */
-	default @NotNull BooleanBinaryOperator or(@NotNull BooleanBinaryOperator other) {
+	default BooleanBinaryOperator or(BooleanBinaryOperator other) {
 		Objects.requireNonNull(other);
 		return (a, b) -> this.apply(a, b) || other.apply(a, b);
 	}
@@ -82,7 +82,7 @@ public interface BooleanBinaryOperator {
 	 *
 	 * @param other the other binary operator
 	 */
-	default @NotNull BooleanBinaryOperator xor(@NotNull BooleanBinaryOperator other) {
+	default BooleanBinaryOperator xor(BooleanBinaryOperator other) {
 		Objects.requireNonNull(other);
 		return (a, b) -> this.apply(a, b) ^ other.apply(a, b);
 	}

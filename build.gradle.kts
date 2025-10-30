@@ -66,6 +66,7 @@ project(":libraries").subprojects {
 	}
 
 	dependencies {
+		api(rootProject.libs.jspecify)
 		api(rootProject.libs.jetbrains.annotations)
 
 		// Use JUnit Jupiter for testing.

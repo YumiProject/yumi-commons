@@ -1,4 +1,5 @@
 [versions]
+jspecify = "1.0.0"
 jetbrains-annotations = "26.0.2"
 
 # Logging
@@ -14,6 +15,7 @@ nexus-publish = "2.0.0"
 gson = "2.13.0"
 
 [libraries]
+jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
 jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
 
 # Logging

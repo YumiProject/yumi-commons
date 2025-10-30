@@ -9,6 +9,7 @@
 package dev.yumi.commons.collections;
 
 import module org.jetbrains.annotations;
+import module org.jspecify;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -19,6 +20,7 @@ import java.util.function.Consumer;
  * @version 1.0.0
  * @since 1.0.0
  */
+@NullUnmarked
 public final class YumiCollections {
 	private YumiCollections() {
 		throw new UnsupportedOperationException("YumiCollections only contains static definitions.");
@@ -34,10 +36,10 @@ public final class YumiCollections {
 	 * @param <T> the type of the lists
 	 */
 	@SafeVarargs
-	public static <T> @NotNull List<T> concat(
-			@NotNull List<? extends T> first,
-			@NotNull List<? extends T> second,
-			@NotNull List<? extends T>... more
+	public static <T> @NonNull List<T> concat(
+			@NonNull List<? extends T> first,
+			@NonNull List<? extends T> second,
+			@NonNull List<? extends T>... more
 	) {
 		var list = new ArrayList<T>(
 				first.size() + second.size() + Arrays.stream(more).mapToInt(Collection::size).sum()
@@ -60,10 +62,10 @@ public final class YumiCollections {
 	 * @param <T> the type of the sets
 	 */
 	@SafeVarargs
-	public static <T> @NotNull Set<T> concat(
-			@NotNull Set<? extends T> first,
-			@NotNull Set<? extends T> second,
-			@NotNull Set<? extends T>... more
+	public static <T> @NonNull Set<T> concat(
+			@NonNull Set<? extends T> first,
+			@NonNull Set<? extends T> second,
+			@NonNull Set<? extends T>... more
 	) {
 		var set = new HashSet<T>(
 				first.size() + second.size() + Arrays.stream(more).mapToInt(Collection::size).sum()
@@ -83,7 +85,9 @@ public final class YumiCollections {
 	 * @param action the action to execute for every permutation
 	 * @param <T> the type held by the collection
 	 */
-	public static <T> void forAllPermutations(@NotNull List<T> collection, @NotNull Consumer<List<T>> action) {
+	public static <T> void forAllPermutations(
+			@NonNull List<T> collection, @NonNull Consumer<@NonNull List<T>> action
+	) {
 		forAllPermutations(new ArrayList<>(), collection, action);
 	}
 
@@ -96,7 +100,9 @@ public final class YumiCollections {
 	 * @param <T> the type held by the collection
 	 */
 	@SuppressWarnings("SuspiciousListRemoveInLoop")
-	public static <T> void forAllPermutations(@NotNull List<T> selected, @NotNull List<T> toSelect, @NotNull Consumer<List<T>> action) {
+	public static <T> void forAllPermutations(
+			@NonNull List<T> selected, @NonNull List<T> toSelect, @NonNull Consumer<@NonNull List<T>> action
+	) {
 		if (toSelect.isEmpty()) {
 			action.accept(selected);
 		} else {
@@ -105,7 +111,7 @@ public final class YumiCollections {
 				var remaining = new ArrayList<>(toSelect);
 				remaining.remove(i);
 				forAllPermutations(selected, remaining, action);
-				selected.remove(selected.size() - 1);
+				selected.removeLast();
 			}
 		}
 	}

@@ -10,18 +10,18 @@ package dev.yumi.commons;
 
 import module org.jetbrains.annotations;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
-/**
- * An enumeration that represents either {@code true}, {@code false}, or the absence of a value.
- *
- * @author LambdAurora
- * @version 1.0.0
- * @since 1.0.0
- */
+/// An enumeration that represents either `true`, `false`, or the absence of a value.
+///
+/// @author LambdAurora
+/// @version 1.0.0
+/// @since 1.0.0
 public enum TriState {
 	/**
 	 * Represents a value of {@code true}.
@@ -35,7 +35,7 @@ public enum TriState {
 
 		@Contract(value = "_ -> true")
 		@Override
-		public boolean toBooleanOrElseGet(@NotNull BooleanSupplier fallbackSupplier) {
+		public boolean toBooleanOrElseGet(BooleanSupplier fallbackSupplier) {
 			Objects.requireNonNull(fallbackSupplier, "fallbackSupplier may not be null");
 			return true;
 		}
@@ -48,7 +48,7 @@ public enum TriState {
 
 		@Contract(value = "_ -> true")
 		@Override
-		public <X extends Throwable> boolean toBooleanOrElseThrow(@NotNull Supplier<? extends X> exceptionSupplier) throws X {
+		public <X extends Throwable> boolean toBooleanOrElseThrow(Supplier<? extends X> exceptionSupplier) throws X {
 			Objects.requireNonNull(exceptionSupplier, "exceptionSupplier may not be null");
 			return true;
 		}
@@ -65,7 +65,7 @@ public enum TriState {
 
 		@Contract(value = "_ -> false")
 		@Override
-		public boolean toBooleanOrElseGet(@NotNull BooleanSupplier fallbackSupplier) {
+		public boolean toBooleanOrElseGet(BooleanSupplier fallbackSupplier) {
 			Objects.requireNonNull(fallbackSupplier, "fallbackSupplier may not be null");
 			return false;
 		}
@@ -78,7 +78,7 @@ public enum TriState {
 
 		@Contract(value = "_ -> false")
 		@Override
-		public <X extends Throwable> boolean toBooleanOrElseThrow(@NotNull Supplier<? extends X> exceptionSupplier) throws X {
+		public <X extends Throwable> boolean toBooleanOrElseThrow(Supplier<? extends X> exceptionSupplier) throws X {
 			Objects.requireNonNull(exceptionSupplier, "exceptionSupplier may not be null");
 			return false;
 		}
@@ -94,7 +94,7 @@ public enum TriState {
 		}
 
 		@Override
-		public boolean toBooleanOrElseGet(@NotNull BooleanSupplier fallbackSupplier) {
+		public boolean toBooleanOrElseGet(BooleanSupplier fallbackSupplier) {
 			Objects.requireNonNull(fallbackSupplier, "fallbackSupplier may not be null");
 			return fallbackSupplier.getAsBoolean();
 		}
@@ -107,7 +107,7 @@ public enum TriState {
 
 		@Contract(value = "_ -> fail")
 		@Override
-		public <X extends Throwable> boolean toBooleanOrElseThrow(@NotNull Supplier<? extends X> exceptionSupplier) throws X {
+		public <X extends Throwable> boolean toBooleanOrElseThrow(Supplier<? extends X> exceptionSupplier) throws X {
 			Objects.requireNonNull(exceptionSupplier, "exceptionSupplier may not be null");
 			throw exceptionSupplier.get();
 		}
@@ -134,7 +134,7 @@ public enum TriState {
 	 * @see #and(Supplier)
 	 */
 	@Contract(pure = true)
-	public @NotNull TriState and(@NotNull TriState other) {
+	public TriState and(TriState other) {
 		return switch (this) {
 			case TRUE -> other;
 			case FALSE -> this;
@@ -163,7 +163,7 @@ public enum TriState {
 	 * @see #and(TriState)
 	 */
 	@Contract(pure = true)
-	public @NotNull TriState and(@NotNull Supplier<TriState> other) {
+	public TriState and(Supplier<TriState> other) {
 		return switch (this) {
 			case TRUE -> other.get();
 			case FALSE -> this;
@@ -196,7 +196,7 @@ public enum TriState {
 	 * @see #or(Supplier)
 	 */
 	@Contract(pure = true)
-	public @NotNull TriState or(@NotNull TriState other) {
+	public TriState or(TriState other) {
 		return switch (this) {
 			case TRUE -> this;
 			case FALSE -> other;
@@ -225,7 +225,7 @@ public enum TriState {
 	 * @see #or(TriState)
 	 */
 	@Contract(pure = true)
-	public @NotNull TriState or(@NotNull Supplier<TriState> other) {
+	public TriState or(Supplier<TriState> other) {
 		return switch (this) {
 			case TRUE -> this;
 			case FALSE -> other.get();
@@ -274,7 +274,7 @@ public enum TriState {
 	 * @see #toBoolean()
 	 * @see #toBooleanOrElse(boolean)
 	 */
-	public abstract boolean toBooleanOrElseGet(@NotNull BooleanSupplier fallbackSupplier);
+	public abstract boolean toBooleanOrElseGet(BooleanSupplier fallbackSupplier);
 
 	/**
 	 * Converts this triple state value into a boolean.
@@ -295,7 +295,7 @@ public enum TriState {
 	 * @return the boolean value of this triple state value
 	 * @throws X if this triple state value is {@link #DEFAULT}
 	 */
-	public abstract <X extends Throwable> boolean toBooleanOrElseThrow(@NotNull Supplier<? extends X> exceptionSupplier) throws X;
+	public abstract <X extends Throwable> boolean toBooleanOrElseThrow(Supplier<? extends X> exceptionSupplier) throws X;
 
 	/**
 	 * Converts the given boolean into a {@code TriState}.
@@ -304,7 +304,7 @@ public enum TriState {
 	 * @return the {@code TriState} value of the boolean
 	 */
 	@Contract(pure = true)
-	public static @NotNull TriState from(boolean bool) {
+	public static TriState from(boolean bool) {
 		return bool ? TRUE : FALSE;
 	}
 
@@ -315,7 +315,7 @@ public enum TriState {
 	 * @return the {@code TriState} value of the boolean
 	 */
 	@Contract(pure = true)
-	public static @NotNull TriState from(@Nullable Boolean bool) {
+	public static TriState from(@Nullable Boolean bool) {
 		return bool == null ? DEFAULT : from(bool.booleanValue());
 	}
 
@@ -333,7 +333,7 @@ public enum TriState {
 	 * @param value the string value
 	 * @return the parsed {@code TriState} value
 	 */
-	public static @NotNull TriState fromString(@Nullable String value) {
+	public static TriState fromString(@Nullable String value) {
 		if ("true".equalsIgnoreCase(value) || "on".equalsIgnoreCase(value)) {
 			return TRUE;
 		} else if ("false".equalsIgnoreCase(value) || "off".equalsIgnoreCase(value)) {
@@ -348,7 +348,7 @@ public enum TriState {
 	 *
 	 * @param property the system property name
 	 */
-	public static @NotNull TriState fromProperty(@NotNull String property) {
+	public static TriState fromProperty(String property) {
 		String value = System.getProperty(property);
 
 		return fromString(value);

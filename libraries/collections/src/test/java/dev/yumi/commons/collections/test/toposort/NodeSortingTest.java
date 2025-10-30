@@ -28,7 +28,6 @@ package dev.yumi.commons.collections.test.toposort;
 import dev.yumi.commons.collections.YumiCollections;
 import dev.yumi.commons.collections.toposort.NodeSorting;
 import dev.yumi.commons.collections.toposort.SortableNode;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -175,7 +174,7 @@ public class NodeSortingTest {
 		}
 
 		@Override
-		public @NotNull String getId() {
+		public String getId() {
 			return this.id;
 		}
 	}

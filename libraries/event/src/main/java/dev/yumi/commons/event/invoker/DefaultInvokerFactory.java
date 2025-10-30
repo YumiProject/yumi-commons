@@ -37,7 +37,7 @@ import java.lang.reflect.Method;
 public final class DefaultInvokerFactory<T> extends InvokerFactory<T> {
 	private final InvokerFactory<T> wrapped;
 
-	public DefaultInvokerFactory(@NotNull Class<? super T> type) {
+	public DefaultInvokerFactory(Class<? super T> type) {
 		super(type);
 
 		Method method = getFunctionalMethod(type);

@@ -8,6 +8,9 @@
 
 package dev.yumi.commons;
 
+import org.jspecify.annotations.Nullable;
+
+import java.util.Objects;
 import java.util.function.Function;
 
 /**
@@ -30,12 +33,12 @@ public final class YumiAssertions {
 	 * @param <E> the exception factory when the check fails
 	 */
 	public static <T, E extends Throwable> void ensureNoDuplicates(
-			T[] items,
-			Function<T, E> exceptionFactory
+			@Nullable T[] items,
+			Function<@Nullable T, E> exceptionFactory
 	) throws E {
 		for (int i = 0; i < items.length; ++i) {
 			for (int j = i + 1; j < items.length; ++j) {
-				if (items[i].equals(items[j])) {
+				if (Objects.equals(items[i], items[j])) {
 					throw exceptionFactory.apply(items[i]);
 				}
 			}

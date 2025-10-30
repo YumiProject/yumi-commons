@@ -29,6 +29,5 @@ public interface InvokableEvent<T> {
 	 * at any time. Always call this method when you intend to execute an event.
 	 */
 	@Contract(pure = true)
-	@NotNull
 	T invoker();
 }

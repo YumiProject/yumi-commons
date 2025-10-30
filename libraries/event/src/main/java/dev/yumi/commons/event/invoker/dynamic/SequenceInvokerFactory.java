@@ -21,16 +21,16 @@ import java.lang.reflect.Method;
 /// @since 1.0.0
 @ApiStatus.Internal
 public final class SequenceInvokerFactory<T> extends DynamicInvokerFactory<T> {
-	public SequenceInvokerFactory(@NotNull Class<? super T> type) {
+	public SequenceInvokerFactory(Class<? super T> type) {
 		super(type);
 	}
 
-	public SequenceInvokerFactory(@NotNull Class<? super T> type, @NotNull Method method) {
+	public SequenceInvokerFactory(Class<? super T> type, Method method) {
 		super(type, method);
 	}
 
 	@Override
-	protected void checkMethod(@NotNull Method method) {
+	protected void checkMethod(Method method) {
 		if (method.getReturnType() != void.class) {
 			throw new IllegalArgumentException("Expected listener function to return void.");
 		}

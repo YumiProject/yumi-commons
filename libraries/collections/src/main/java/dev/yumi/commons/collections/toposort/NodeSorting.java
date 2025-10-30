@@ -69,8 +69,8 @@ public final class NodeSorting {
 	 * @see #sort(List, String, Comparator)
 	 */
 	public static <I extends Comparable<? super I>, N extends SortableNode<I, N>> boolean sort(
-			@NotNull List<N> sortedNodes,
-			@NotNull String elementDescription
+			List<N> sortedNodes,
+			String elementDescription
 	) {
 		return sort(sortedNodes, elementDescription, Comparator.comparing(SortableNode::getId));
 	}
@@ -85,9 +85,9 @@ public final class NodeSorting {
 	 * @see #sort(List, String)
 	 */
 	public static <I, N extends SortableNode<I, N>> boolean sort(
-			@NotNull List<N> sortedNodes,
-			@NotNull String elementDescription,
-			@NotNull Comparator<N> comparator
+			List<N> sortedNodes,
+			String elementDescription,
+			Comparator<N> comparator
 	) {
 		// FIRST KOSARAJU SCC VISIT
 		var toposort = new ArrayList<N>(sortedNodes.size());
@@ -136,7 +136,7 @@ public final class NodeSorting {
 
 		// Order SCCs according to the priorities. When there is a choice, use the SCC with the lowest id.
 		// The priority queue contains all SCCs that currently have 0 in-degree.
-		var pq = new PriorityQueue<NodeScc<I, N>>(Comparator.comparing(scc -> scc.nodes.get(0), comparator));
+		var pq = new PriorityQueue<NodeScc<I, N>>(Comparator.comparing(scc -> scc.nodes.getFirst(), comparator));
 		sortedNodes.clear();
 
 		for (NodeScc<I, N> scc : nodeToScc.values()) {

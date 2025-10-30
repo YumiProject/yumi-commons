@@ -27,7 +27,6 @@ public interface ListenableEvent<I extends Comparable<? super I>, T> {
 	 * {@return the default phase identifier of this event}
 	 */
 	@Contract(pure = true)
-	@NotNull
 	I defaultPhaseId();
 
 	/**
@@ -36,7 +35,7 @@ public interface ListenableEvent<I extends Comparable<? super I>, T> {
 	 * @param listener the listener to register
 	 * @see #register(Comparable, Object)
 	 */
-	default void register(@NotNull T listener) {
+	default void register(T listener) {
 		this.register(this.defaultPhaseId(), listener);
 	}
 
@@ -47,7 +46,7 @@ public interface ListenableEvent<I extends Comparable<? super I>, T> {
 	 * @param listener the listener to register
 	 * @see #register(Object)
 	 */
-	void register(@NotNull I phaseIdentifier, @NotNull T listener);
+	void register(I phaseIdentifier, T listener);
 
 	/**
 	 * Adds new phase ordering constraints to this event for one phase be executed before the listeners of another phase.
@@ -59,5 +58,5 @@ public interface ListenableEvent<I extends Comparable<? super I>, T> {
 	 * @param secondPhase the identifier of the phase that should run after the given first phase
 	 * @see #register(Comparable, Object) register a listener with a phase
 	 */
-	void addPhaseOrdering(@NotNull I firstPhase, @NotNull I secondPhase);
+	void addPhaseOrdering(I firstPhase, I secondPhase);
 }

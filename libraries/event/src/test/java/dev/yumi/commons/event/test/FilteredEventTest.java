@@ -13,6 +13,7 @@ import dev.yumi.commons.collections.YumiCollections;
 import dev.yumi.commons.event.ContextualizedEvent;
 import dev.yumi.commons.event.EventManager;
 import dev.yumi.commons.event.FilteredEvent;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -53,7 +54,7 @@ public class FilteredEventTest {
 	public void testPhases() {
 		var tester = new ExecutionTester();
 
-		record Listener(int order, Predicate<String> selector) {
+		record Listener(int order, @Nullable Predicate<String> selector) {
 			void register(String phase, ExecutionTester tester, FilteredEvent<String, TestCallback, String> event) {
 				if (this.selector == null) {
 					event.register(phase, text -> tester.assertOrder(this.order));

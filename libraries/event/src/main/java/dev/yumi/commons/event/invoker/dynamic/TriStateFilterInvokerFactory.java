@@ -31,16 +31,16 @@ import java.lang.reflect.Method;
 public final class TriStateFilterInvokerFactory<T> extends DynamicInvokerFactory<T> {
 	private static final ClassDesc CD_TRISTATE = ClassDesc.of(TriState.class.getName());
 
-	public TriStateFilterInvokerFactory(@NotNull Class<? super T> type) {
+	public TriStateFilterInvokerFactory(Class<? super T> type) {
 		super(type);
 	}
 
-	public TriStateFilterInvokerFactory(@NotNull Class<? super T> type, @NotNull Method method) {
+	public TriStateFilterInvokerFactory(Class<? super T> type, Method method) {
 		super(type, method);
 	}
 
 	@Override
-	protected void checkMethod(@NotNull Method method) {
+	protected void checkMethod(Method method) {
 		if (method.getReturnType() != TriState.class) {
 			throw new IllegalArgumentException("Expected listener function to return a TriState.");
 		}

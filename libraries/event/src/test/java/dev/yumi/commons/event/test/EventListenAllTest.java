@@ -24,9 +24,7 @@ public class EventListenAllTest {
 	public void testListenAllRejectNoEvents() {
 		var events = new EventManager<>("default", Function.identity());
 
-		assertThrows(IllegalArgumentException.class, () -> {
-			events.listenAll(new Listener(new ExecutionTester()));
-		});
+		assertThrows(IllegalArgumentException.class, () -> events.listenAll(new Listener(new ExecutionTester())));
 	}
 
 	@Test
@@ -35,9 +33,7 @@ public class EventListenAllTest {
 		var testEvent = events.create(TestCallback.class);
 		var testFilterEvent = events.create(FilterTestCallback.class);
 
-		assertThrows(IllegalArgumentException.class, () -> {
-			events.listenAll(new Object(), testEvent, testFilterEvent);
-		});
+		assertThrows(IllegalArgumentException.class, () -> events.listenAll(new Object(), testEvent, testFilterEvent));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -55,9 +51,7 @@ public class EventListenAllTest {
 			}
 		};
 
-		assertThrows(IllegalArgumentException.class, () -> {
-			events.listenAll(generic, testGenericEvent);
-		});
+		assertThrows(IllegalArgumentException.class, () -> events.listenAll(generic, testGenericEvent));
 	}
 
 	@Test

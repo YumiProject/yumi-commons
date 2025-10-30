@@ -6,6 +6,9 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+import org.jspecify.annotations.NullMarked;
+
+@NullMarked
 module dev.yumi.commons.collections {
 	requires transitive dev.yumi.commons.core;
 	requires org.slf4j;

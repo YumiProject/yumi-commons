@@ -109,9 +109,9 @@ public final class FilteredEvent<I extends Comparable<? super I>, T, C> extends 
 	private final Map<C, WeakReference<ContextualizedEvent<I, T, C>>> contextualizedEvents = new WeakHashMap<>();
 
 	FilteredEvent(
-			@NotNull Class<? super T> type,
-			@NotNull I defaultPhaseId,
-			@NotNull Function<T[], T> invokerFactory
+			Class<? super T> type,
+			I defaultPhaseId,
+			Function<T[], T> invokerFactory
 	) {
 		super(type, defaultPhaseId, invokerFactory);
 	}
@@ -123,7 +123,7 @@ public final class FilteredEvent<I extends Comparable<? super I>, T, C> extends 
 	/// @see #register(Object)
 	/// @see #register(Comparable, Object)
 	/// @see #register(Comparable, Object, Predicate)
-	public void register(@NotNull T listener, @NotNull Predicate<C> filter) {
+	public void register(T listener, Predicate<C> filter) {
 		this.register(this.defaultPhaseId(), listener, filter);
 	}
 
@@ -135,7 +135,7 @@ public final class FilteredEvent<I extends Comparable<? super I>, T, C> extends 
 	/// @see #register(Object)
 	/// @see #register(Object, Predicate)
 	/// @see #register(Comparable, Object)
-	public void register(@NotNull I phaseIdentifier, @NotNull T listener, @NotNull Predicate<C> filter) {
+	public void register(I phaseIdentifier, T listener, Predicate<C> filter) {
 		Objects.requireNonNull(phaseIdentifier, "Cannot register a listener for a null phase.");
 		Objects.requireNonNull(listener, "Cannot register a null listener.");
 		Objects.requireNonNull(filter, "Cannot register a listener with a null context filter.");
@@ -160,7 +160,7 @@ public final class FilteredEvent<I extends Comparable<? super I>, T, C> extends 
 	/// @param context the current context
 	/// @return the contextualized event for the given context
 	/// @see #forContext(Object, boolean)
-	public ContextualizedEvent<I, T, C> forContext(@NotNull C context) {
+	public ContextualizedEvent<I, T, C> forContext(C context) {
 		return this.forContext(context, false);
 	}
 
@@ -174,7 +174,7 @@ public final class FilteredEvent<I extends Comparable<? super I>, T, C> extends 
 	/// or `false` otherwise
 	/// @return the contextualized event for the given context
 	/// @see #forContext(Object)
-	public ContextualizedEvent<I, T, C> forContext(@NotNull C context, boolean replace) {
+	public ContextualizedEvent<I, T, C> forContext(C context, boolean replace) {
 		this.lock.lock();
 		try {
 			if (replace) {
@@ -202,13 +202,13 @@ public final class FilteredEvent<I extends Comparable<? super I>, T, C> extends 
 	}
 
 	@Override
-	void doRegister(@NotNull I phaseIdentifier, @NotNull T listener) {
+	void doRegister(I phaseIdentifier, T listener) {
 		super.doRegister(phaseIdentifier, listener);
 		this.notifyContextualizedOfRegistration(phaseIdentifier, listener, YumiPredicates.alwaysTrue());
 	}
 
 	private void notifyContextualizedOfRegistration(
-			@NotNull I phaseIdentifier, @NotNull T listener, @NotNull Predicate<C> selector
+			I phaseIdentifier, T listener, Predicate<C> selector
 	) {
 		for (var contextualized : this.contextualizedEvents.values()) {
 			var value = contextualized.get();
@@ -220,7 +220,7 @@ public final class FilteredEvent<I extends Comparable<? super I>, T, C> extends 
 	}
 
 	@Override
-	void doAddPhaseOrdering(@NotNull I firstPhase, @NotNull I secondPhase) {
+	void doAddPhaseOrdering(I firstPhase, I secondPhase) {
 		super.doAddPhaseOrdering(firstPhase, secondPhase);
 
 		for (var contextualized : this.contextualizedEvents.values()) {
@@ -237,7 +237,7 @@ public final class FilteredEvent<I extends Comparable<? super I>, T, C> extends 
 	// while the generics in the phase fields also match them.
 	@SuppressWarnings({"unchecked", "RedundantSuppression"})
 	@Override
-	FilteredPhaseData getOrCreatePhase(@NotNull I id, boolean sortIfCreate) {
+	FilteredPhaseData getOrCreatePhase(I id, boolean sortIfCreate) {
 		var phase = this.phases.get(id);
 
 		if (phase == null) {
@@ -263,25 +263,25 @@ public final class FilteredEvent<I extends Comparable<? super I>, T, C> extends 
 		Listener<T, C>[] listenersData;
 
 		@SuppressWarnings("unchecked")
-		FilteredPhaseData(@NotNull I id, @NotNull Class<? super T> listenerType) {
+		FilteredPhaseData(I id, Class<? super T> listenerType) {
 			super(id, listenerType);
 			this.listenersData = new Listener[0];
 		}
 
 		@Override
-		void addListener(@NotNull T listener) {
+		void addListener(T listener) {
 			super.addListener(listener);
 			this.addListener(new Listener<>(listener, null));
 		}
 
-		void addListener(@NotNull Listener<T, C> listener) {
+		void addListener(Listener<T, C> listener) {
 			int oldLength = this.listenersData.length;
 			this.listenersData = Arrays.copyOf(this.listenersData, oldLength + 1);
 			this.listenersData[oldLength] = listener;
 		}
 
 		@SuppressWarnings({"unchecked"})
-		Event.PhaseData<I, T> copyFor(@NotNull C context) {
+		Event.PhaseData<I, T> copyFor(C context) {
 			return new PhaseData<>(
 					this.getId(),
 					Arrays.stream(this.listenersData)

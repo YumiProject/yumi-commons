@@ -68,11 +68,11 @@ public final class ContextualizedEvent<I extends Comparable<? super I>, T, C> ex
 	 * {@return the context of this contextualized event}
 	 */
 	@Contract(pure = true)
-	public @NotNull C context() {
+	public C context() {
 		return this.context;
 	}
 
-	void registerFromParent(@NotNull I phaseIdentifier, @NotNull T listener, @NotNull Predicate<C> selector) {
+	void registerFromParent(I phaseIdentifier, T listener, Predicate<C> selector) {
 		if (selector.test(context)) {
 			this.register(phaseIdentifier, listener);
 		}

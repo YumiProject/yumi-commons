@@ -8,8 +8,6 @@
 
 package dev.yumi.commons.event;
 
-import module org.jetbrains.annotations;
-
 /**
  * Represents the event creation listener interface.
  *
@@ -27,5 +25,5 @@ public interface EventCreation<I extends Comparable<? super I>> {
 	 * @param manager the event manager used to create the event
 	 * @param event the event that has been created
 	 */
-	void onEventCreation(@NotNull EventManager<I> manager, @NotNull Event<I, ?> event);
+	void onEventCreation(EventManager<I> manager, Event<I, ?> event);
 }

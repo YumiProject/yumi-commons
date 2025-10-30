@@ -26,7 +26,7 @@ import java.util.function.Function;
 public abstract class InvokerFactory<T> implements Function<T[], T> {
 	protected final Class<? super T> type;
 
-	protected InvokerFactory(@NotNull Class<? super T> type) {
+	protected InvokerFactory(Class<? super T> type) {
 		Objects.requireNonNull(
 				type, "The type of the invoker factory cannot be null."
 		);
@@ -37,7 +37,7 @@ public abstract class InvokerFactory<T> implements Function<T[], T> {
 	 * {@return the type of the invoker executed by the event}
 	 */
 	@Contract(pure = true)
-	public @NotNull Class<? super T> type() {
+	public Class<? super T> type() {
 		return this.type;
 	}
 
@@ -49,7 +49,7 @@ public abstract class InvokerFactory<T> implements Function<T[], T> {
 	 * @return the functional method if found
 	 * @throws IllegalArgumentException if no valid functional method could be found
 	 */
-	protected static <T> @NotNull Method getFunctionalMethod(@NotNull Class<? super T> type) {
+	protected static <T> Method getFunctionalMethod(Class<? super T> type) {
 		Method listenerMethod = null;
 
 		for (var method : type.getMethods()) {

@@ -60,7 +60,7 @@ public final class EventManager<I extends Comparable<? super I>> {
 	 * @param phaseIdParser a function to parse phase identifiers from a given string,
 	 * this is used for the {@link ListenerPhase} annotation
 	 */
-	public EventManager(@NotNull I defaultPhaseId, @NotNull Function<String, I> phaseIdParser) {
+	public EventManager(I defaultPhaseId, Function<String, I> phaseIdParser) {
 		this.defaultPhaseId = defaultPhaseId;
 		this.phaseIdParser = phaseIdParser;
 		this.creationEvent = new Event<>(EventCreation.class, defaultPhaseId, new SequenceInvokerFactory<>(EventCreation.class));
@@ -79,7 +79,7 @@ public final class EventManager<I extends Comparable<? super I>> {
 	 * @see #createWithPhases(Class, Comparable[])
 	 * @see #createWithPhases(Class, Function, Comparable[])
 	 */
-	public <T> @NotNull Event<I, T> create(@NotNull InvokerFactory<T> invokerFactory) {
+	public <T> Event<I, T> create(InvokerFactory<T> invokerFactory) {
 		return this.create(invokerFactory.type(), invokerFactory);
 	}
 
@@ -105,7 +105,7 @@ public final class EventManager<I extends Comparable<? super I>> {
 	 * @see #createWithPhases(Class, Function, Comparable[])
 	 * @see DefaultInvokerFactory the invoker factory used for this event
 	 */
-	public <T> @NotNull Event<I, T> create(@NotNull Class<? super T> type) {
+	public <T> Event<I, T> create(Class<? super T> type) {
 		return this.create(type, new DefaultInvokerFactory<>(type));
 	}
 
@@ -123,7 +123,7 @@ public final class EventManager<I extends Comparable<? super I>> {
 	 * @see #createWithPhases(Class, Comparable[])
 	 * @see #createWithPhases(Class, Function, Comparable[])
 	 */
-	public <T> @NotNull Event<I, T> create(@NotNull Class<? super T> type, @NotNull Function<T[], T> implementation) {
+	public <T> Event<I, T> create(Class<? super T> type, Function<T[], T> implementation) {
 		var event = new Event<>(type, this.defaultPhaseId, implementation);
 		this.creationEvent.invoker().onEventCreation(this, event);
 		return event;
@@ -149,10 +149,10 @@ public final class EventManager<I extends Comparable<? super I>> {
 	 * @see #createWithPhases(Class, Comparable[])
 	 * @see #createWithPhases(Class, Function, Comparable[])
 	 */
-	public <T> @NotNull Event<I, T> create(
-			@NotNull Class<? super T> type,
-			@NotNull T emptyImplementation,
-			@NotNull Function<T[], T> implementation
+	public <T> Event<I, T> create(
+			Class<? super T> type,
+			T emptyImplementation,
+			Function<T[], T> implementation
 	) {
 		return this.create(type, listeners -> switch (listeners.length) {
 			case 0 -> emptyImplementation;
@@ -190,9 +190,9 @@ public final class EventManager<I extends Comparable<? super I>> {
 	 * @see #createWithPhases(InvokerFactory, Comparable[])
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> @NotNull Event<I, T> createWithPhases(
-			@NotNull InvokerFactory<T> invokerFactory,
-			@NotNull I... defaultPhases
+	public <T> Event<I, T> createWithPhases(
+			InvokerFactory<T> invokerFactory,
+			I... defaultPhases
 	) {
 		return this.createWithPhases(invokerFactory.type(), invokerFactory, defaultPhases);
 	}
@@ -226,9 +226,9 @@ public final class EventManager<I extends Comparable<? super I>> {
 	 * @see #createWithPhases(Class, Function, Comparable[])
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> @NotNull Event<I, T> createWithPhases(
-			@NotNull Class<? super T> type,
-			@NotNull I... defaultPhases
+	public <T> Event<I, T> createWithPhases(
+			Class<? super T> type,
+			I... defaultPhases
 	) {
 		return this.createWithPhases(type, new DefaultInvokerFactory<>(type), defaultPhases);
 	}
@@ -261,10 +261,10 @@ public final class EventManager<I extends Comparable<? super I>> {
 	 * @see #createWithPhases(InvokerFactory, Comparable[])
 	 */
 	@SafeVarargs
-	public final <T> @NotNull Event<I, T> createWithPhases(
-			@NotNull Class<? super T> type,
-			@NotNull Function<T[], T> implementation,
-			@NotNull I... defaultPhases
+	public final <T> Event<I, T> createWithPhases(
+			Class<? super T> type,
+			Function<T[], T> implementation,
+			I... defaultPhases
 	) {
 		return this.createWithPhases(() -> new Event<>(type, this.defaultPhaseId, implementation), defaultPhases);
 	}
@@ -284,7 +284,7 @@ public final class EventManager<I extends Comparable<? super I>> {
 	 * @see #createFilteredWithPhases(Class, Class, Comparable[])
 	 * @see #createFilteredWithPhases(Class, Class, Function, Comparable[])
 	 */
-	public <T, C> @NotNull FilteredEvent<I, T, C> createFiltered(@NotNull Class<? super C> contextType, @NotNull InvokerFactory<T> invokerFactory) {
+	public <T, C> FilteredEvent<I, T, C> createFiltered(Class<? super C> contextType, InvokerFactory<T> invokerFactory) {
 		return this.createFiltered(invokerFactory.type(), contextType, invokerFactory);
 	}
 
@@ -312,7 +312,7 @@ public final class EventManager<I extends Comparable<? super I>> {
 	 * @see #createFilteredWithPhases(Class, Class, Function, Comparable[])
 	 * @see DefaultInvokerFactory the invoker factory used for this event
 	 */
-	public <T, C> @NotNull FilteredEvent<I, T, C> createFiltered(@NotNull Class<? super T> type, @NotNull Class<? super C> contextType) {
+	public <T, C> FilteredEvent<I, T, C> createFiltered(Class<? super T> type, Class<? super C> contextType) {
 		return this.createFiltered(type, contextType, new DefaultInvokerFactory<>(type));
 	}
 
@@ -332,10 +332,10 @@ public final class EventManager<I extends Comparable<? super I>> {
 	 * @see #createFilteredWithPhases(Class, Class, Comparable[])
 	 * @see #createFilteredWithPhases(Class, Class, Function, Comparable[])
 	 */
-	public <T, C> @NotNull FilteredEvent<I, T, C> createFiltered(
-			@NotNull Class<? super T> type,
-			@NotNull Class<? super C> contextType,
-			@NotNull Function<T[], T> implementation
+	public <T, C> FilteredEvent<I, T, C> createFiltered(
+			Class<? super T> type,
+			Class<? super C> contextType,
+			Function<T[], T> implementation
 	) {
 		var event = new FilteredEvent<I, T, C>(type, this.defaultPhaseId, implementation);
 		this.creationEvent.invoker().onEventCreation(this, event);
@@ -364,11 +364,11 @@ public final class EventManager<I extends Comparable<? super I>> {
 	 * @see #createFilteredWithPhases(Class, Class, Comparable[])
 	 * @see #createFilteredWithPhases(Class, Class, Function, Comparable[])
 	 */
-	public <T, C> @NotNull FilteredEvent<I, T, C> createFiltered(
-			@NotNull Class<? super T> type,
-			@NotNull Class<? super C> contextType,
-			@NotNull T emptyImplementation,
-			@NotNull Function<T[], T> implementation
+	public <T, C> FilteredEvent<I, T, C> createFiltered(
+			Class<? super T> type,
+			Class<? super C> contextType,
+			T emptyImplementation,
+			Function<T[], T> implementation
 	) {
 		return this.createFiltered(type, contextType, listeners -> switch (listeners.length) {
 			case 0 -> emptyImplementation;
@@ -408,10 +408,10 @@ public final class EventManager<I extends Comparable<? super I>> {
 	 * @see #createFilteredWithPhases(Class, Class, Function, Comparable[])
 	 */
 	@SuppressWarnings("unchecked")
-	public <T, C> @NotNull FilteredEvent<I, T, C> createFilteredWithPhases(
-			@NotNull Class<C> contextType,
-			@NotNull InvokerFactory<T> invokerFactory,
-			@NotNull I... defaultPhases
+	public <T, C> FilteredEvent<I, T, C> createFilteredWithPhases(
+			Class<C> contextType,
+			InvokerFactory<T> invokerFactory,
+			I... defaultPhases
 	) {
 		return this.createFilteredWithPhases(invokerFactory.type(), contextType, invokerFactory, defaultPhases);
 	}
@@ -447,10 +447,10 @@ public final class EventManager<I extends Comparable<? super I>> {
 	 * @see #createFilteredWithPhases(Class, Class, Function, Comparable[])
 	 */
 	@SuppressWarnings("unchecked")
-	public <T, C> @NotNull FilteredEvent<I, T, C> createFilteredWithPhases(
-			@NotNull Class<? super T> type,
-			@NotNull Class<C> contextType,
-			@NotNull I... defaultPhases
+	public <T, C> FilteredEvent<I, T, C> createFilteredWithPhases(
+			Class<? super T> type,
+			Class<C> contextType,
+			I... defaultPhases
 	) {
 		return this.createFilteredWithPhases(type, contextType, new DefaultInvokerFactory<>(type), defaultPhases);
 	}
@@ -485,11 +485,11 @@ public final class EventManager<I extends Comparable<? super I>> {
 	 * @see #createFilteredWithPhases(Class, Class, Comparable[])
 	 */
 	@SafeVarargs
-	public final <T, C> @NotNull FilteredEvent<I, T, C> createFilteredWithPhases(
-			@NotNull Class<? super T> type,
-			@NotNull Class<C> contextType,
-			@NotNull Function<T[], T> implementation,
-			@NotNull I... defaultPhases
+	public final <T, C> FilteredEvent<I, T, C> createFilteredWithPhases(
+			Class<? super T> type,
+			Class<C> contextType,
+			Function<T[], T> implementation,
+			I... defaultPhases
 	) {
 		return this.createWithPhases(() -> new FilteredEvent<>(type, this.defaultPhaseId, implementation), defaultPhases);
 	}
@@ -539,7 +539,7 @@ public final class EventManager<I extends Comparable<? super I>> {
 	 * {@return the default phase identifier of all the events created by this event manager}
 	 */
 	@Contract(pure = true)
-	public @NotNull I defaultPhaseId() {
+	public I defaultPhaseId() {
 		return this.defaultPhaseId;
 	}
 
@@ -547,7 +547,7 @@ public final class EventManager<I extends Comparable<? super I>> {
 	 * {@return the event that is triggered when an event is created using this event manager}
 	 */
 	@Contract(pure = true)
-	public @NotNull Event<I, EventCreation<I>> getCreationEvent() {
+	public Event<I, EventCreation<I>> getCreationEvent() {
 		return this.creationEvent;
 	}
 
@@ -556,7 +556,7 @@ public final class EventManager<I extends Comparable<? super I>> {
 	@SafeVarargs
 	private <E extends Event<I, ?>> E createWithPhases(
 			Supplier<E> eventSupplier,
-			@NotNull I... defaultPhases
+			I... defaultPhases
 	) {
 		this.ensureContainsDefaultPhase(defaultPhases);
 		YumiAssertions.ensureNoDuplicates(defaultPhases, id -> new IllegalArgumentException("Duplicate event phase: " + id));

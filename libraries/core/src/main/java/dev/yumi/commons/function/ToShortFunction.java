@@ -8,7 +8,7 @@
 
 package dev.yumi.commons.function;
 
-import module org.jetbrains.annotations;
+import module org.jspecify;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -26,6 +26,7 @@ import java.util.function.Function;
  * @see Function
  * @since 1.0.0
  */
+@NullUnmarked
 @FunctionalInterface
 public interface ToShortFunction<T> {
 	/**
@@ -48,7 +49,7 @@ public interface ToShortFunction<T> {
 	 * function and then applies this function
 	 * @throws NullPointerException if before is {@code null}
 	 */
-	default <V> @NotNull ToShortFunction<V> compose(@NotNull Function<? super V, ? extends T> before) {
+	default <V> @NonNull ToShortFunction<V> compose(@NonNull Function<? super V, ? extends T> before) {
 		Objects.requireNonNull(before);
 		return v -> this.applyAsShort(before.apply(v));
 	}
@@ -57,7 +58,7 @@ public interface ToShortFunction<T> {
 	 * {@return a function that always returns {@code 0}}
 	 * @param <T> the type of the input objects to the function
 	 */
-	static <T> ToShortFunction<T> zero() {
+	static <T> @NonNull ToShortFunction<T> zero() {
 		return ignored -> (short) 0;
 	}
 }

@@ -8,7 +8,7 @@
 
 package dev.yumi.commons.function;
 
-import module org.jetbrains.annotations;
+import module org.jspecify;
 
 import java.util.function.Predicate;
 
@@ -19,6 +19,7 @@ import java.util.function.Predicate;
  * @version 1.0.0
  * @since 1.0.0
  */
+@NullUnmarked
 public final class YumiPredicates {
 	private YumiPredicates() {
 		throw new UnsupportedOperationException("YumiPredicates only contains static definitions.");
@@ -31,7 +32,7 @@ public final class YumiPredicates {
 	 * @see #alwaysFalse()
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> @NotNull Predicate<T> alwaysTrue() {
+	public static <T> @NonNull Predicate<T> alwaysTrue() {
 		return (Predicate<T>) ALWAYS_TRUE;
 	}
 
@@ -42,7 +43,7 @@ public final class YumiPredicates {
 	 * @see #alwaysTrue()
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> @NotNull Predicate<T> alwaysFalse() {
+	public static <T> @NonNull Predicate<T> alwaysFalse() {
 		return (Predicate<T>) ALWAYS_FALSE;
 	}
 
@@ -57,7 +58,7 @@ public final class YumiPredicates {
 	 * @see #anyOf(Predicate, Predicate)
 	 * @see #anyOf(Predicate[])
 	 */
-	public static <T> @NotNull Predicate<T> anyOf() {
+	public static <T> @NonNull Predicate<T> anyOf() {
 		return alwaysFalse();
 	}
 
@@ -72,7 +73,7 @@ public final class YumiPredicates {
 	 * @see #anyOf(Predicate, Predicate)
 	 * @see #anyOf(Predicate[])
 	 */
-	public static <T> @NotNull Predicate<T> anyOf(@NotNull Predicate<T> predicate) {
+	public static <T> @NonNull Predicate<T> anyOf(@NonNull Predicate<T> predicate) {
 		return predicate;
 	}
 
@@ -84,7 +85,7 @@ public final class YumiPredicates {
 	 * @see #anyOf(Predicate)
 	 * @see #anyOf(Predicate[])
 	 */
-	public static <T> @NotNull Predicate<T> anyOf(@NotNull Predicate<T> a, @NotNull Predicate<T> b) {
+	public static <T> @NonNull Predicate<T> anyOf(@NonNull Predicate<T> a, @NonNull Predicate<T> b) {
 		return a.or(b);
 	}
 
@@ -97,7 +98,7 @@ public final class YumiPredicates {
 	 * @see #anyOf(Predicate, Predicate)
 	 */
 	@SafeVarargs
-	public static <T> @NotNull Predicate<T> anyOf(@NotNull Predicate<T>... predicates) {
+	public static <T> @NonNull Predicate<T> anyOf(@NonNull Predicate<T>... predicates) {
 		return o -> {
 			for (var predicate : predicates) {
 				if (predicate.test(o)) {
@@ -120,7 +121,7 @@ public final class YumiPredicates {
 	 * @see #allOf(Predicate, Predicate)
 	 * @see #allOf(Predicate[])
 	 */
-	public static <T> @NotNull Predicate<T> allOf() {
+	public static <T> @NonNull Predicate<T> allOf() {
 		return alwaysFalse();
 	}
 
@@ -135,7 +136,7 @@ public final class YumiPredicates {
 	 * @see #allOf(Predicate, Predicate)
 	 * @see #allOf(Predicate[])
 	 */
-	public static <T> @NotNull Predicate<T> allOf(@NotNull Predicate<T> predicate) {
+	public static <T> @NonNull Predicate<T> allOf(@NonNull Predicate<T> predicate) {
 		return predicate;
 	}
 
@@ -147,7 +148,7 @@ public final class YumiPredicates {
 	 * @see #allOf(Predicate)
 	 * @see #allOf(Predicate[])
 	 */
-	public static <T> @NotNull Predicate<T> allOf(@NotNull Predicate<T> a, @NotNull Predicate<T> b) {
+	public static <T> @NonNull Predicate<T> allOf(@NonNull Predicate<T> a, @NonNull Predicate<T> b) {
 		return a.and(b);
 	}
 
@@ -160,7 +161,7 @@ public final class YumiPredicates {
 	 * @see #allOf(Predicate, Predicate)
 	 */
 	@SafeVarargs
-	public static <T> @NotNull Predicate<T> allOf(@NotNull Predicate<T>... predicates) {
+	public static <T> @NonNull Predicate<T> allOf(@NonNull Predicate<T>... predicates) {
 		return o -> {
 			for (var predicate : predicates) {
 				if (!predicate.test(o)) {

@@ -6,6 +6,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+import org.jspecify.annotations.NullMarked;
+
 /**
  * <h2>The Yumi Commons Core Library</h2>
  * <p>
@@ -13,8 +15,10 @@
  * <p>
  * Those utilities may be useful data types (like {@link dev.yumi.commons.Either}), utility methods, and functional utilities.
  */
+@NullMarked
 module dev.yumi.commons.core {
 	requires static transitive org.jetbrains.annotations;
+	requires static transitive org.jspecify;
 
 	exports dev.yumi.commons;
 	exports dev.yumi.commons.function;

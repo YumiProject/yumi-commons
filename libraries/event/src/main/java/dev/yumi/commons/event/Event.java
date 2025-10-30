@@ -41,26 +41,25 @@ import java.util.function.Function;
 ///
 /// The factory methods for Event allows the user to provide an implementation of `T` which is used to
 /// execute the listeners stored in this event instance. This allows a user to control how iteration works, whether an
-/// event is cancelled after a specific listener is executed or to make an event
-/// {@link ParameterInvokingEvent parameter invoking}.
+/// event is cancelled after a specific listener is executed or to make an event [parameter invoking][ParameterInvokingEvent].
 ///
 /// Generally `T` should be a type which is a
 /// [functional interface](https://docs.oracle.com/javase/specs/jls/se16/html/jls-9.html#jls-9.8)
 /// to allow listeners registered to the event to be specified in a lambda, method reference form or implemented onto a
-/// class. A way to ensure that an interface is a functional interface is to place a {@link FunctionalInterface}
+/// class. A way to ensure that an interface is a functional interface is to place a [FunctionalInterface]
 /// annotation on the type. You can let `T` not be a functional interface, however it heavily complicates the process
 /// of implementing an invoker and only allows listener implementations to be done by implementing an interface onto a
 /// class or extending a class.
 ///
-/// An Event can have phases, each listener is attributed to a phase ({@link Event#defaultPhaseId()} if unspecified),
+/// An Event can have phases, each listener is attributed to a phase ([Event#defaultPhaseId()] if unspecified),
 /// and each phase can have a defined ordering. Each event phase is identified, ordering is done
 /// by explicitly stating that event phase `A` will run before event phase `B`, for example.
-/// See {@link Event#addPhaseOrdering(Comparable, Comparable)} for more information.
+/// See [Event#addPhaseOrdering(Comparable, Comparable)] for more information.
 ///
 /// ## Example: Registering listeners
 ///
 /// The most common use of an event will be registering a listener which is executed by the event. To register a listener,
-/// pass an instance of `T` into {@link #register}.
+/// pass an instance of `T` into [#register(Object)].
 ///
 /// {@snippet lang = java:
 /// // Events are created and managed by an EventManager.
@@ -140,9 +139,9 @@ public sealed class Event<I extends Comparable<? super I>, T>
 
 	@SuppressWarnings("unchecked")
 	Event(
-			@NotNull Class<? super T> type,
-			@NotNull I defaultPhaseId,
-			@NotNull Function<T[], T> invokerFactory
+			Class<? super T> type,
+			I defaultPhaseId,
+			Function<T[], T> invokerFactory
 	) {
 		Objects.requireNonNull(type, "The class specifying the type of T in the event cannot be null.");
 		Objects.requireNonNull(defaultPhaseId, "The default phase identifier of the event cannot be null.");
@@ -157,17 +156,17 @@ public sealed class Event<I extends Comparable<? super I>, T>
 
 	/// {@return the class of the kind of listeners accepted by this event}
 	@Contract(pure = true)
-	public @NotNull Class<? super T> type() {
+	public Class<? super T> type() {
 		return this.type;
 	}
 
 	@Override
-	public @NotNull I defaultPhaseId() {
+	public I defaultPhaseId() {
 		return this.defaultPhaseId;
 	}
 
 	@Override
-	public void register(@NotNull I phaseIdentifier, @NotNull T listener) {
+	public void register(I phaseIdentifier, T listener) {
 		Objects.requireNonNull(phaseIdentifier, "Cannot register a listener for a null phase.");
 		Objects.requireNonNull(listener, "Cannot register a null listener.");
 
@@ -179,13 +178,13 @@ public sealed class Event<I extends Comparable<? super I>, T>
 		}
 	}
 
-	void doRegister(@NotNull I phaseIdentifier, @NotNull T listener) {
+	void doRegister(I phaseIdentifier, T listener) {
 		this.getOrCreatePhase(phaseIdentifier, true).addListener(listener);
 		this.rebuildInvoker(this.listeners.length + 1);
 	}
 
 	@Override
-	public void addPhaseOrdering(@NotNull I firstPhase, @NotNull I secondPhase) {
+	public void addPhaseOrdering(I firstPhase, I secondPhase) {
 		Objects.requireNonNull(firstPhase, "Tried to order a null phase.");
 		Objects.requireNonNull(secondPhase, "Tried to order a null phase.");
 
@@ -201,7 +200,7 @@ public sealed class Event<I extends Comparable<? super I>, T>
 		}
 	}
 
-	void doAddPhaseOrdering(@NotNull I firstPhase, @NotNull I secondPhase) {
+	void doAddPhaseOrdering(I firstPhase, I secondPhase) {
 		var first = this.getOrCreatePhase(firstPhase, false);
 		var second = this.getOrCreatePhase(secondPhase, false);
 
@@ -211,13 +210,13 @@ public sealed class Event<I extends Comparable<? super I>, T>
 	}
 
 	@Override
-	public @NotNull T invoker() {
+	public T invoker() {
 		return this.invoker;
 	}
 
 	/* Implementation */
 
-	PhaseData<I, T> getOrCreatePhase(@NotNull I id, boolean sortIfCreate) {
+	PhaseData<I, T> getOrCreatePhase(I id, boolean sortIfCreate) {
 		var phase = this.phases.get(id);
 
 		if (phase == null) {
@@ -240,7 +239,7 @@ public sealed class Event<I extends Comparable<? super I>, T>
 	void rebuildInvoker(int newLength) {
 		if (this.sortedPhases.size() == 1) {
 			// There's a single phase, so we can directly use its listeners.
-			this.listeners = this.sortedPhases.get(0).listeners;
+			this.listeners = this.sortedPhases.getFirst().listeners;
 		} else {
 			@SuppressWarnings("unchecked")
 			var newListeners = (T[]) Array.newInstance(this.type, newLength);
@@ -292,36 +291,36 @@ public sealed class Event<I extends Comparable<? super I>, T>
 		T[] listeners;
 
 		@SuppressWarnings("unchecked")
-		PhaseData(@NotNull I id, @NotNull Class<? super T> listenerType) {
+		PhaseData(I id, Class<? super T> listenerType) {
 			this(
 					Objects.requireNonNull(id),
 					(T[]) Array.newInstance(listenerType, 0)
 			);
 		}
 
-		PhaseData(@NotNull I id, @NotNull T[] listeners) {
+		PhaseData(I id, T[] listeners) {
 			this.id = id;
 			this.listeners = listeners;
 		}
 
 		@Override
-		public @NotNull I getId() {
+		public I getId() {
 			return this.id;
 		}
 
-		void addListener(@NotNull T listener) {
+		void addListener(T listener) {
 			int oldLength = this.listeners.length;
 			this.listeners = Arrays.copyOf(this.listeners, oldLength + 1);
 			this.listeners[oldLength] = listener;
 		}
 
 		@Override
-		public @NotNull @Unmodifiable Set<PhaseData<I, T>> getPreviousNodes() {
+		public @Unmodifiable Set<PhaseData<I, T>> getPreviousNodes() {
 			return super.getPreviousNodes();
 		}
 
 		@Override
-		public @NotNull @Unmodifiable Set<PhaseData<I, T>> getNextNodes() {
+		public @Unmodifiable Set<PhaseData<I, T>> getNextNodes() {
 			return super.getNextNodes();
 		}
 	}

@@ -27,18 +27,18 @@ import java.lang.reflect.Method;
 public final class FilterInvokerFactory<T> extends DynamicInvokerFactory<T> {
 	private final boolean invert;
 
-	public FilterInvokerFactory(@NotNull Class<? super T> type, boolean invert) {
+	public FilterInvokerFactory(Class<? super T> type, boolean invert) {
 		super(type);
 		this.invert = invert;
 	}
 
-	public FilterInvokerFactory(@NotNull Class<? super T> type, @NotNull Method method, boolean invert) {
+	public FilterInvokerFactory(Class<? super T> type, Method method, boolean invert) {
 		super(type, method);
 		this.invert = invert;
 	}
 
 	@Override
-	protected void checkMethod(@NotNull Method method) {
+	protected void checkMethod(Method method) {
 		if (method.getReturnType() != boolean.class) {
 			throw new IllegalArgumentException("Expected listener function to return a boolean.");
 		}
