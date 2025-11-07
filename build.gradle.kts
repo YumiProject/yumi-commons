@@ -2,7 +2,7 @@ import task.CheckActionsRefTask
 
 plugins {
 	id("yumi-commons-base")
-	id("io.github.gradle-nexus.publish-plugin").version("2.0.0")
+	alias(libs.plugins.nexus.publish)
 	`java-library`
 }
 

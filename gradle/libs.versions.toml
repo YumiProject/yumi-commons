@@ -32,3 +32,6 @@ licenser = { module = "dev.yumi:yumi-gradle-licenser", version.ref = "licenser" 
 gradle-jmh = { module = "me.champeau.jmh:jmh-gradle-plugin", version.ref = "gradle-jmh" }
 nexus-publish = { module = "io.github.gradle-nexus:publish-plugin", version.ref = "nexus-publish" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+
+[plugins]
+nexus-publish = { id = "io.github.gradle-nexus.publish-plugin", version.ref = "nexus-publish" }
