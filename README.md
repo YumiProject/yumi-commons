@@ -1,6 +1,6 @@
 # Yumi Commons
 
-![Java 17](https://img.shields.io/badge/language-Java%2017-9115ff.svg?style=flat-square)
+![Java 25](https://img.shields.io/badge/language-Java%2025-9115ff.svg?style=flat-square)
 [![GitHub license](https://img.shields.io/github/license/YumiProject/yumi-commons?style=flat-square)](https://raw.githubusercontent.com/YumiProject/yumi-commons/main/LICENSE)
 ![Maven Central](https://img.shields.io/maven-central/v/dev.yumi.commons/yumi-commons?style=flat-square&label=Maven%20Central)
 <!--![Version](https://img.shields.io/github/v/tag/YumiProject/yumi-commons?label=version&style=flat-square)-->
