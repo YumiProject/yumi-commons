@@ -43,8 +43,8 @@ publishing.publications.getByName<MavenPublication>(Constants.PUBLICATION_NAME) 
 
 nexusPublishing {
 	repositories {
-		val mavenCentralKey: String? by project
-		val mavenCentralSecret: String? by project
+		val mavenCentralKey = project.findProperty("mavenCentralKey") as String?
+		val mavenCentralSecret = project.findProperty("mavenCentralSecret") as String?
 
 		if (mavenCentralKey != null && mavenCentralSecret != null) {
 			sonatype {

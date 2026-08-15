@@ -9,7 +9,7 @@ slf4j = "2.0.17"
 junit = "6.0.3"
 
 # Gradle
-licenser = "3.0.1+"
+licenser = "4.0.+"
 gradle-jmh = "0.7.3"
 nexus-publish = "2.0.0"
 gson = "2.13.0"

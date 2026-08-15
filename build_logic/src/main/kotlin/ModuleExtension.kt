@@ -10,9 +10,7 @@ abstract class ModuleExtension(private val project: Project) {
 	val dependencies: ListProperty<String> = project.objects.listProperty<String>()
 
 	fun require(library: String) {
-		val dependency = this.project.project(":libraries:$library")
-
-		this.project.dependencies.add("api", dependency)
-		this.dependencies.add(dependency.name)
+		this.project.dependencies.add("api", project.dependencies.project(":libraries:$library"))
+		this.dependencies.add(library)
 	}
 }

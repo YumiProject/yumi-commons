@@ -75,6 +75,7 @@ tasks.jar {
 
 license {
 	rule(rootProject.file("codeformat/HEADER"))
+	include("**/*.java")
 }
 
 tasks.withType<Test>().configureEach {
